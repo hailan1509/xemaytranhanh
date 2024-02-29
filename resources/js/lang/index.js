@@ -36,16 +36,17 @@ export function getLanguage() {
   if (chooseLanguage) {
     return chooseLanguage;
   }
+  return 'vi';
 
-  // if has not choose language
-  const language = (navigator.language || navigator.browserLanguage).toLowerCase();
-  const locales = Object.keys(messages);
-  for (const locale of locales) {
-    if (language.indexOf(locale) > -1) {
-      return locale;
-    }
-  }
-  return 'en';
+  // // if has not choose language
+  // const language = (navigator.language || navigator.browserLanguage).toLowerCase();
+  // const locales = Object.keys(messages);
+  // for (const locale of locales) {
+  //   if (language.indexOf(locale) > -1) {
+  //     return locale;
+  //   }
+  // }
+  // return 'vi';
 }
 const i18n = new VueI18n({
   // set locale

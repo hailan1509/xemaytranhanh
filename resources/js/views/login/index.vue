@@ -47,10 +47,10 @@
               {{ $t('login.logIn') }}
             </el-button>
           </el-form-item>
-          <div class="tips">
+          <!-- <div class="tips">
             <span style="margin-right:20px;">Email: admin@laravue.dev</span>
             <span>Password: laravue</span>
-          </div>
+          </div> -->
         </el-form>
       </div>
     </div>

@@ -40,7 +40,11 @@ Route::namespace('Api')->group(function() {
         Route::put('users/{user}/permissions', 'UserController@updatePermissions')->middleware('permission:' .Acl::PERMISSION_PERMISSION_MANAGE);
         Route::get('roles/{role}/permissions', 'RoleController@permissions')->middleware('permission:' . Acl::PERMISSION_PERMISSION_MANAGE);
     });
+    Route::get('nhom-hang/list', 'NhomHangController@index');
+    Route::post('nhom-hang/store', 'NhomHangController@store');
+    Route::post('nhom-hang/delete', 'NhomHangController@delete');
 });
+
 
 // Fake APIs
 Route::get('/table/list', function () {
