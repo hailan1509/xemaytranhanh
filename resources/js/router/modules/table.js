@@ -24,16 +24,28 @@ const tableRoutes = {
     //   meta: { title: 'inlineEditTable' },
     // },
     {
-      path: 'complex-table',
-      component: () => import('@/views/table/ComplexTable'),
-      name: 'ComplexTable',
-      meta: { title: 'complexTable' },
+      path: 'hang-xe',
+      component: () => import('@/views/table/QuanLyHangXe'),
+      name: 'Quản lý hãng xe',
+      meta: { title: 'Quản lý hãng xe' },
+    },
+    {
+      path: 'nha-cung-cap',
+      component: () => import('@/views/table/QuanLyNCC'),
+      name: 'Quản lý nhà cung cấp',
+      meta: { title: 'Quản lý nhà cung cấp' },
     },
     {
       path: 'nhom-hang',
       component: () => import('@/views/table/QuanLyNhomHang'),
       name: 'Quản lý nhóm hàng',
       meta: { title: 'Quản lý nhóm hàng' },
+    },
+    {
+      path: 'san-pham',
+      component: () => import('@/views/table/QuanLySanPham'),
+      name: 'Quản lý hàng',
+      meta: { title: 'Quản lý hàng' },
     },
   ],
 };

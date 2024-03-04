@@ -1,16 +1,15 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.title" :placeholder="'Tên nhóm hàng'" style="width: 300px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <!-- <el-select v-model="listQuery.importance" :placeholder="$t('table.importance')" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
-      </el-select> -->
-      <!-- <el-select v-model="listQuery.type" :placeholder="$t('table.type')" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key" />
+      <el-input v-model="listQuery.title" :placeholder="'Tên sản phẩm'" style="display: inline-block;width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-select v-model="listQuery.month" placeholder="Chọn tháng" style="display: inline-block;width: 200px;" class="filter-item">
+        <el-option :key="1" :label="'Theo tháng'" :value="1" />
+        <el-option :key="0" :label="'Theo ngày'" :value="0" />
       </el-select>
-      <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
-      </el-select> -->
+      <v-select v-model="listQuery.hang_xe" :options="hangXe" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm hãng" :reduce="option => option.id" />
+      <v-select v-model="listQuery.nhom_hang" :options="nhomHang" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm nhóm hàng" :reduce="option => option.id" />
+      <v-select v-model="listQuery.ncc" :options="nhaCungCap" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm nhà cung cấp" :reduce="option => option.id" />
+      <el-date-picker v-model="listQuery.date" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Xem theo ngày" style="width: 150px;" class="filter-item" />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         {{ $t('table.search') }}
       </el-button>
@@ -27,7 +26,7 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column :label="'Tên nhóm hàng'" prop="id" align="center" style="width: 40%;">
+      <el-table-column :label="''" prop="id" align="center" style="width: 40%;">
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
         </template>
@@ -83,9 +82,14 @@
 </template>
 
 <script>
-import { fetchList, store, del } from '@/api/nhom-hang';
+import { fetchList, store, del } from '@/api/san-pham';
+import { fetchList as lstHang } from '@/api/hang-xe';
+import { fetchList as lstNCC } from '@/api/ncc';
+import { fetchList as lstNhomHang } from '@/api/nhom-hang';
 import waves from '@/directive/waves'; // Waves directive
 import Pagination from '@/components/Pagination'; // Secondary package based on el-pagination
+import vSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -102,7 +106,7 @@ const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
 
 export default {
   name: 'ComplexTable',
-  components: { Pagination },
+  components: { Pagination, vSelect },
   directives: { waves },
   filters: {
     statusFilter(status) {
@@ -130,6 +134,8 @@ export default {
         title: undefined,
         type: undefined,
         sort: '+id',
+        month: 0,
+        hang_xe: '',
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
@@ -139,6 +145,18 @@ export default {
       temp: {
         id: undefined,
         name: '',
+        short_name: '',
+        hang_xe: '',
+        nha_cung_cap: '',
+        nhom_hang: '',
+        gia_ban: '',
+        gia_nhap: '',
+        so_luong_con_lai: '',
+        so_luong_nhap: '',
+        phuong_thuc_nhap: '',
+        ngay_nhap: '',
+        img: '',
+        image: '',
         note: '',
       },
       dialogFormVisible: false,
@@ -153,12 +171,31 @@ export default {
         name: [{ required: true, message: 'type is required', trigger: 'change' }],
       },
       downloadLoading: false,
+      hangXe: [],
+      nhomHang: [],
+      nhaCungCap: [],
     };
   },
   created() {
+    this.getHangXe();
+    this.getNhomHang();
+    this.getNCC();
     this.getList();
   },
   methods: {
+    async getHangXe() {
+      const { data } = await lstHang({ limit: 1000 });
+      this.hangXe = data.data;
+      console.log(data.data);
+    },
+    async getNhomHang() {
+      const { data } = await lstNhomHang({ limit: 1000 });
+      this.nhomHang = data.data;
+    },
+    async getNCC() {
+      const { data } = await lstNCC({ limit: 1000 });
+      this.nhaCungCap = data.data;
+    },
     async getList() {
       this.listLoading = true;
       const { data } = await fetchList(this.listQuery);
@@ -256,6 +293,12 @@ export default {
           });
         }
       });
+    },
+    handleInput(value) {
+      // console.log(value);
+    },
+    handleSelect(value) {
+      // console.log(value);
     },
     handleDelete(row) {
       this.$confirm('Bạn có chắc muốn xoá?', 'Cảnh báo', {

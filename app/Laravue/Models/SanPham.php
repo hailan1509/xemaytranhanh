@@ -24,7 +24,8 @@ class SanPham extends Model
         'phuong_thuc_nhap',
         'ngay_nhap',
         'note',
-        'nha_cung_cap'
+        'nha_cung_cap',
+        'img'
     ];
 
     public function hangXe(): HasOne
@@ -38,5 +39,8 @@ class SanPham extends Model
     public function nhaCungCap(): HasOne
     {
         return $this->hasOne(NhaCungCap::class, 'id', 'nha_cung_cap');
+    }
+    public function imgPath() {
+        return public_path(). '/images/posts/' .$this->img;
     }
 }

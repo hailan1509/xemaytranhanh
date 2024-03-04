@@ -138,7 +138,7 @@ export default {
     readings: 'Readings',
     status: 'Status',
     actions: 'Actions',
-    edit: 'Edit',
+    edit: 'Sửa',
     publish: 'Publish',
     draft: 'Draft',
     delete: 'Delete',

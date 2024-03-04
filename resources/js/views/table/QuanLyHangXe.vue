@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.title" :placeholder="'Tên nhóm hàng'" style="width: 300px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.title" :placeholder="'Tên hãng'" style="width: 300px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <!-- <el-select v-model="listQuery.importance" :placeholder="$t('table.importance')" clearable style="width: 90px" class="filter-item">
         <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
       </el-select> -->
@@ -27,14 +27,9 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column :label="'Tên nhóm hàng'" prop="id" align="center" style="width: 40%;">
+      <el-table-column :label="'Tên hãng'" prop="id" align="center" style="width: 40%;">
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="'Ghi chú'" style="width: 20%;" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.note }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('table.actions')" align="center" style="width: 40%;" class-name="small-padding fixed-width">
@@ -53,11 +48,8 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="150px" style="width: 100%; margin-left:10px;">
-        <el-form-item :label="'Tên nhóm hàng'" prop="title">
+        <el-form-item :label="'Tên hãng'" prop="title">
           <el-input v-model="temp.name" />
-        </el-form-item>
-        <el-form-item :label="'Ghi chú'" prop="title">
-          <el-input v-model="temp.note" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -83,7 +75,7 @@
 </template>
 
 <script>
-import { fetchList, store, del } from '@/api/nhom-hang';
+import { fetchList, store, del } from '@/api/hang-xe';
 import waves from '@/directive/waves'; // Waves directive
 import Pagination from '@/components/Pagination'; // Secondary package based on el-pagination
 
@@ -139,7 +131,6 @@ export default {
       temp: {
         id: undefined,
         name: '',
-        note: '',
       },
       dialogFormVisible: false,
       dialogStatus: '',

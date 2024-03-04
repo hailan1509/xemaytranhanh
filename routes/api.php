@@ -43,6 +43,15 @@ Route::namespace('Api')->group(function() {
     Route::get('nhom-hang/list', 'NhomHangController@index');
     Route::post('nhom-hang/store', 'NhomHangController@store');
     Route::post('nhom-hang/delete', 'NhomHangController@delete');
+    Route::get('ncc/list', 'NCCController@index');
+    Route::post('ncc/store', 'NCCController@store');
+    Route::post('ncc/delete', 'NCCController@delete');
+    Route::get('hang-xe/list', 'HangXeController@index');
+    Route::post('hang-xe/store', 'HangXeController@store');
+    Route::post('hang-xe/delete', 'HangXeController@delete');
+    Route::get('san-pham/list', 'SanPhamController@index');
+    Route::post('san-pham/store', 'SanPhamController@store');
+    Route::post('san-pham/delete', 'SanPhamController@delete');
 });
 
 

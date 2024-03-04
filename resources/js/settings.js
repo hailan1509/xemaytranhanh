@@ -4,7 +4,7 @@ export default {
   /**
    * @type {String}
    */
-  title: 'Laravue Admin',
+  title: 'Quản lý cửa hàng xe máy',
   theme: variables.theme,
 
   /**
