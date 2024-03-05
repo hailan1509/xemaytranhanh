@@ -52,12 +52,68 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="150px" style="width: 100%; margin-left:10px;">
-        <el-form-item :label="'Tên nhóm hàng'" prop="title">
-          <el-input v-model="temp.name" />
-        </el-form-item>
-        <el-form-item :label="'Ghi chú'" prop="title">
-          <el-input v-model="temp.note" />
-        </el-form-item>
+        <el-tabs style="margin-top:15px;" type="border-card">
+          <el-tab-pane :label="'Thông tin sản phẩm'">
+            <el-form-item :label="'Tên sản phẩm'" prop="title">
+              <el-input v-model="temp.name" />
+            </el-form-item>
+            <el-form-item :label="'Hãng xe'" prop="title">
+              <v-select v-model="temp.hang_xe" :options="hangXe" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn hãng xe" :reduce="option => option.id" />
+            </el-form-item>
+            <el-form-item :label="'Nhóm hàng'" prop="title">
+              <v-select v-model="temp.nhom_hang" :options="nhomHang" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn nhóm" :reduce="option => option.id" />
+            </el-form-item>
+            <el-form-item :label="'Nhà cung cấp'" prop="title">
+              <v-select v-model="temp.ncc" :options="nhaCungCap" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn nhà cung cấp" :reduce="option => option.id" />
+            </el-form-item>
+            <el-form-item :label="'Ngày nhập'" prop="title">
+              <el-date-picker v-model="temp.ngay_nhap" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Chọn ngày nhập hàng" style="width: 200px;" class="filter-item" />
+            </el-form-item>
+          </el-tab-pane>
+          <el-tab-pane :label="'Giá - Số lượng'">
+            <el-form-item :label="'Giá nhập'" prop="title">
+              <el-input v-model="temp.gia_nhap" />
+            </el-form-item>
+            <el-form-item :label="'Giá bán'" prop="title">
+              <el-input v-model="temp.gia_ban" />
+            </el-form-item>
+            <el-form-item :label="'Số lượng nhập'" prop="title">
+              <el-input v-model="temp.so_luong_nhap" />
+            </el-form-item>
+            <el-form-item :label="'Số lượng còn lại'" prop="title">
+              <el-input v-model="temp.so_luong_con_lai" />
+            </el-form-item>
+
+          </el-tab-pane>
+          <el-tab-pane :label="'Thêm'">
+            <el-form-item :label="'Phương thức nhập'" prop="title">
+              <el-input v-model="temp.phuong_thuc_nhap" />
+            </el-form-item>
+            <el-form-item :label="'Ghi chú'" prop="title">
+              <el-input v-model="temp.note" />
+            </el-form-item>
+            <el-form-item :label="'Hình ảnh'" prop="title">
+              <el-upload
+                id="imgObject"
+                :data="additionalData"
+                :multiple="false"
+                :show-file-list="true"
+                :on-success="handleImageSuccess"
+                :before-upload="beforeUpload"
+                class="image-uploader"
+                drag
+                action="https://httpbin.org/post"
+              >
+                <i class="el-icon-upload" />
+                <div class="el-upload__text">
+                  Kéo file ảnh hoặc <em>Bấm vào đây</em>
+                </div>
+              </el-upload>
+              <img v-if="imgUrl.length > 1" width="300px" height="auto" :src="imgUrl">
+            </el-form-item>
+
+          </el-tab-pane>
+        </el-tabs>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">
@@ -174,6 +230,9 @@ export default {
       hangXe: [],
       nhomHang: [],
       nhaCungCap: [],
+      additionalData: {},
+      imgUrl: '',
+      imagePost: {},
     };
   },
   created() {
@@ -183,6 +242,12 @@ export default {
     this.getList();
   },
   methods: {
+    beforeUpload(file) {
+      this.imagePost = file;
+    },
+    handleImageSuccess(file) {
+      this.imgUrl = file.files.file;
+    },
     async getHangXe() {
       const { data } = await lstHang({ limit: 1000 });
       this.hangXe = data.data;
@@ -234,6 +299,18 @@ export default {
       this.temp = {
         id: undefined,
         name: '',
+        short_name: '',
+        hang_xe: '',
+        nha_cung_cap: '',
+        nhom_hang: '',
+        gia_ban: '',
+        gia_nhap: '',
+        so_luong_con_lai: '',
+        so_luong_nhap: '',
+        phuong_thuc_nhap: '',
+        ngay_nhap: '',
+        img: '',
+        image: '',
         note: '',
       };
     },
@@ -249,7 +326,12 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.id = ''; // mock a id
-          store(this.temp).then((res) => {
+          this.temp.image = this.imagePost;
+          var formData = new FormData();
+          for (var key in this.temp) {
+            formData.append(key, this.temp[key]);
+          }
+          store(formData).then((res) => {
             this.list.unshift(this.temp);
             this.dialogFormVisible = false;
             this.$notify({

@@ -62,7 +62,7 @@ class SanPhamController extends BaseController
             if (!empty($request->image)) {
                 $getImage = $request->image;
                 $imageName = time().'.'.$getImage->extension();
-                $imagePath = public_path(). '/images/objects';
+                $imagePath = '/images/objects';
                 $getImage->move($imagePath, $imageName);
             }
             if ($id) {
@@ -107,6 +107,7 @@ class SanPhamController extends BaseController
                 if (!empty($request->image)) {
                     $model->img = $imagePath . '/' . $imageName;
                 }
+                $model->save();
                 return response()->json(['success' => true,'message' => 'Thêm thành công!'], 200);
             }
         } catch (\Exception $e) {
