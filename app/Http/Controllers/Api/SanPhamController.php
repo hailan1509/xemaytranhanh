@@ -6,6 +6,8 @@ use App\Laravue\Models\SanPham;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class SanPhamController extends BaseController
@@ -42,15 +44,22 @@ class SanPhamController extends BaseController
                 $q->where('ngay_nhap', $searchParams['date']);
         })
         ->paginate($limit);
+        // dd();
         return response()->json(['data' => $query], 200);
     }
 
     public function store(Request $request) {
         $searchParams = $request->all();
+        $messages = [
+            'name.required' => 'Tên sản phẩm không để trống!',
+            'image.image' => 'File tải lên không ở dạng ảnh!',
+            'image.mimes' => 'Ảnh không hợp lệ!',
+            'image.max' => 'Kích thước ảnh phải nhỏ hơn 2048 KB!',
+        ];
         $validator = Validator::make($searchParams, [
             'name' => 'required',
             'image'=>'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
-        ]);
+        ], $messages);
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => $validator->errors(), 'error']);
         }
@@ -62,7 +71,7 @@ class SanPhamController extends BaseController
             if (!empty($request->image)) {
                 $getImage = $request->image;
                 $imageName = time().'.'.$getImage->extension();
-                $imagePath = '/images/objects';
+                $imagePath = public_path().'/images/objects';
                 $getImage->move($imagePath, $imageName);
             }
             if ($id) {
@@ -82,7 +91,12 @@ class SanPhamController extends BaseController
                     $model->ngay_nhap = $searchParams['ngay_nhap'];
                     $model->note = $searchParams['note'];
                     if (!empty($request->image)) {
-                        $model->img = $imagePath . '/' . $imageName;
+                        if (!empty($model->img)) {
+                            if (File::exists($imagePath.'/'.$model->img)) {
+                                File::delete($imagePath.'/'.$model->img);
+                            }
+                        }
+                        $model->img = $imageName;
                     }
                     $model->save();
                     return response()->json(['success' => true,'message' => 'Sửa thành công!'], 200);
@@ -105,12 +119,13 @@ class SanPhamController extends BaseController
                 $model->ngay_nhap = $searchParams['ngay_nhap'];
                 $model->note = $searchParams['note'];
                 if (!empty($request->image)) {
-                    $model->img = $imagePath . '/' . $imageName;
+                    $model->img = $imageName;
                 }
                 $model->save();
                 return response()->json(['success' => true,'message' => 'Thêm thành công!'], 200);
             }
         } catch (\Exception $e) {
+            dd($e);
             return response()->json(['message' => 'Đã có lỗi vui lòng thao tác lại!'], 500);
         }
     }

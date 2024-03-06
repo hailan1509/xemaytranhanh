@@ -27,6 +27,7 @@ class SanPham extends Model
         'nha_cung_cap',
         'img'
     ];
+    protected $appends = ['img_path'];
 
     public function hangXe(): HasOne
     {
@@ -40,7 +41,8 @@ class SanPham extends Model
     {
         return $this->hasOne(NhaCungCap::class, 'id', 'nha_cung_cap');
     }
-    public function imgPath() {
-        return public_path(). '/images/posts/' .$this->img;
+    public function getImgPathAttribute() {
+        if (empty($this->img)) return '';
+        return public_path(). '/images/objects/' .$this->img;
     }
 }

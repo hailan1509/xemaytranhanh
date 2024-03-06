@@ -26,9 +26,24 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column :label="''" prop="id" align="center" style="width: 40%;">
+      <el-table-column :label="'Ảnh SP'" prop="id" align="center" style="width: 40%;">
+        <template slot-scope="scope">
+          <img v-if="scope.row.img" :src="getImgUrl(scope.row.img_path)" :alt="scope.row.name" width="100px" height="auto">
+        </template>
+      </el-table-column>
+      <el-table-column :label="'Tên SP'" style="width: 20%;" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="'Giá nhập'" style="width: 20%;" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.gia_nhap }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="'Giá bán'" style="width: 20%;" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.gia_ban }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="'Ghi chú'" style="width: 20%;" align="center">
@@ -64,7 +79,7 @@
               <v-select v-model="temp.nhom_hang" :options="nhomHang" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn nhóm" :reduce="option => option.id" />
             </el-form-item>
             <el-form-item :label="'Nhà cung cấp'" prop="title">
-              <v-select v-model="temp.ncc" :options="nhaCungCap" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn nhà cung cấp" :reduce="option => option.id" />
+              <v-select v-model="temp.nha_cung_cap" :options="nhaCungCap" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn nhà cung cấp" :reduce="option => option.id" />
             </el-form-item>
             <el-form-item :label="'Ngày nhập'" prop="title">
               <el-date-picker v-model="temp.ngay_nhap" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Chọn ngày nhập hàng" style="width: 200px;" class="filter-item" />
@@ -214,6 +229,7 @@ export default {
         img: '',
         image: '',
         note: '',
+        img_path: '',
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -232,7 +248,7 @@ export default {
       nhaCungCap: [],
       additionalData: {},
       imgUrl: '',
-      imagePost: {},
+      imagePost: null,
     };
   },
   created() {
@@ -242,6 +258,13 @@ export default {
     this.getList();
   },
   methods: {
+    getImgUrl(imgPath) {
+      // Chuyển đổi đường dẫn đầy đủ thành URL có thể truy cập được
+      if (!imgPath) {
+        return '';
+      }
+      return `${window.location.origin}/${imgPath.replace(/\\/g, '/').split('public/')[1]}`;
+    },
     beforeUpload(file) {
       this.imagePost = file;
     },
@@ -312,6 +335,7 @@ export default {
         img: '',
         image: '',
         note: '',
+        img_path: '',
       };
     },
     handleCreate() {
@@ -332,7 +356,7 @@ export default {
             formData.append(key, this.temp[key]);
           }
           store(formData).then((res) => {
-            this.list.unshift(this.temp);
+            this.getList();
             this.dialogFormVisible = false;
             this.$notify({
               title: res.success ? 'Xong' : 'Lỗi',
@@ -347,6 +371,7 @@ export default {
     handleUpdate(row) {
       this.temp = Object.assign({}, row); // copy obj
       this.temp.timestamp = new Date(this.temp.timestamp);
+      this.imgUrl = this.getImgUrl(this.temp.img_path);
       this.dialogStatus = 'update';
       this.dialogFormVisible = true;
       this.$nextTick(() => {
@@ -356,22 +381,45 @@ export default {
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp);
-          store(tempData).then(() => {
-            for (const v of this.list) {
-              if (v.id === this.temp.id) {
-                const index = this.list.indexOf(v);
-                this.list.splice(index, 1, this.temp);
-                break;
+          if (this.imagePost) {
+            this.temp.image = this.imagePost;
+          }
+          var formData = new FormData();
+          for (var key in this.temp) {
+            formData.append(key, this.temp[key] ? this.temp[key] : '');
+          }
+          store(formData).then((res) => {
+            this.getList();
+            this.dialogFormVisible = false;
+            if (res.success) {
+              this.$notify({
+                title: 'Success',
+                message: res.message,
+                type: 'success',
+                duration: 2000,
+              });
+            } else {
+              if (res[0] === 'error') {
+                let messages = '';
+                Object.values(res.message).forEach((error) => {
+                  messages += '<div><strong>' + error[0] + '</strong></div>';
+                });
+                this.$notify({
+                  title: 'Warning',
+                  dangerouslyUseHTMLString: true,
+                  message: messages,
+                  type: 'warning',
+                  duration: 7000,
+                });
+              } else {
+                this.$notify({
+                  title: 'Error',
+                  message: res.message,
+                  type: 'error',
+                  duration: 5000,
+                });
               }
             }
-            this.dialogFormVisible = false;
-            this.$notify({
-              title: 'Success',
-              message: 'Sửa thành công!',
-              type: 'success',
-              duration: 2000,
-            });
           });
         }
       });
