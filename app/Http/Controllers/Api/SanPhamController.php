@@ -36,7 +36,7 @@ class SanPhamController extends BaseController
             $q->where('nhom_hang', $searchParams['nhom_hang']);
         })
         ->when(!empty($searchParams['date']), function ($q) use ($searchParams) {
-            if (!empty(($searchParams['is_month']))) {
+            if (!empty(($searchParams['month']))) {
                 $arr = explode('-', $searchParams['date']);
                 $q->whereMonth('ngay_nhap', $arr[1])->whereYear('ngay_nhap', $arr[0]);
             }

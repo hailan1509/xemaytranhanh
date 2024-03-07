@@ -6,9 +6,9 @@
         <el-option :key="1" :label="'Theo tháng'" :value="1" />
         <el-option :key="0" :label="'Theo ngày'" :value="0" />
       </el-select>
-      <v-select v-model="listQuery.hang_xe" :options="hangXe" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm hãng" :reduce="option => option.id" />
-      <v-select v-model="listQuery.nhom_hang" :options="nhomHang" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm nhóm hàng" :reduce="option => option.id" />
-      <v-select v-model="listQuery.ncc" :options="nhaCungCap" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm nhà cung cấp" :reduce="option => option.id" />
+      <v-select v-model="listQuery.hang_xe" class="el-select filter-item el-select--medium" :options="hangXe" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm hãng" :reduce="option => option.id" />
+      <v-select v-model="listQuery.nhom_hang" class="el-select filter-item el-select--medium" :options="nhomHang" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm nhóm hàng" :reduce="option => option.id" />
+      <v-select v-model="listQuery.ncc" class="el-select filter-item el-select--medium" :options="nhaCungCap" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm nhà cung cấp" :reduce="option => option.id" />
       <el-date-picker v-model="listQuery.date" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Xem theo ngày" style="width: 150px;" class="filter-item" />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         {{ $t('table.search') }}
@@ -38,12 +38,12 @@
       </el-table-column>
       <el-table-column :label="'Giá nhập'" style="width: 20%;" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.gia_nhap }}</span>
+          <span>{{ scope.row.gia_nhap | toThousandFilter }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="'Giá bán'" style="width: 20%;" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.gia_ban }}</span>
+          <span>{{ scope.row.gia_ban | toThousandFilter }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="'Ghi chú'" style="width: 20%;" align="center">
@@ -88,9 +88,15 @@
           <el-tab-pane :label="'Giá - Số lượng'">
             <el-form-item :label="'Giá nhập'" prop="title">
               <el-input v-model="temp.gia_nhap" />
+              <div>
+                <span>{{ _convert_number_to_words(temp.gia_nhap) }}</span>
+              </div>
             </el-form-item>
             <el-form-item :label="'Giá bán'" prop="title">
               <el-input v-model="temp.gia_ban" />
+              <div>
+                <span>{{ _convert_number_to_words(temp.gia_ban) }}</span>
+              </div>
             </el-form-item>
             <el-form-item :label="'Số lượng nhập'" prop="title">
               <el-input v-model="temp.so_luong_nhap" />
@@ -207,6 +213,8 @@ export default {
         sort: '+id',
         month: 0,
         hang_xe: '',
+        ncc: '',
+        nhom_hang: '',
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
@@ -447,6 +455,122 @@ export default {
             this.getList();
           });
         });
+    },
+    _convert_number_to_words(number) {
+      if (!number) {
+        return 'Không đồng';
+      }
+      const hyphen = ' ';
+      const conjunction = ' ';
+      const separator = ' ';
+      const negative = 'âm ';
+      const decimal = ' phảy ';
+      const dictionary = {
+        0: 'không',
+        1: 'một',
+        2: 'hai',
+        3: 'ba',
+        4: 'bốn',
+        5: 'năm',
+        6: 'sáu',
+        7: 'bảy',
+        8: 'tám',
+        9: 'chín',
+        10: 'mười',
+        11: 'mười một',
+        12: 'mười hai',
+        13: 'mười ba',
+        14: 'mười bốn',
+        15: 'mười lăm',
+        16: 'mười sáu',
+        17: 'mười bảy',
+        18: 'mười tám',
+        19: 'mười chín',
+        20: 'hai mươi',
+        30: 'ba mươi',
+        40: 'bốn mươi',
+        50: 'năm mươi',
+        60: 'sáu mươi',
+        70: 'bảy mươi',
+        80: 'tám mươi',
+        90: 'chín mươi',
+        100: 'trăm',
+        1000: 'nghìn',
+        1000000: 'triệu',
+        1000000000: 'tỷ',
+        1000000000000: 'nghìn tỷ',
+        1000000000000000: 'triệu tỷ',
+        1000000000000000000: 'tỷ tỷ',
+      };
+
+      if (isNaN(number)) {
+        return false;
+      }
+
+      if ((number >= 0 && parseInt(number) < 0) || parseInt(number) < 0 - Number.MAX_SAFE_INTEGER) {
+        // overflow
+        console.warn('convert_number_to_words only accepts numbers between -' + Number.MAX_SAFE_INTEGER + ' and ' + Number.MAX_SAFE_INTEGER);
+        return false;
+      }
+
+      if (number < 0) {
+        return negative + this._convert_number_to_words(Math.abs(number));
+      }
+
+      let string = null;
+      let fraction = null;
+
+      if (number.toString().indexOf('.') !== -1) {
+        [number, fraction] = number.toString().split('.');
+      }
+
+      const baseUnit = Math.pow(1000, Math.floor(Math.log(number) / Math.log(1000)));
+      const numBaseUnits = Math.floor(number / baseUnit);
+      const remainder1 = number % baseUnit;
+      const tmp = remainder1.toString().split('.');
+      switch (true) {
+        case number < 21:
+          string = dictionary[number];
+          break;
+        case number < 100:
+          string = dictionary[Math.floor(number / 10) * 10];
+          if (number % 10) {
+            string += hyphen + dictionary[number % 10];
+          }
+          break;
+        case number < 1000:
+          string = dictionary[Math.floor(number / 100)] + ' ' + dictionary[100];
+          if (number % 100) {
+            let tmp_str = '';
+            if (number % 100 < 10) {
+              tmp_str = ' linh ';
+            }
+            string += conjunction + tmp_str + this._convert_number_to_words(number % 100);
+          }
+          break;
+        default:
+          string = this._convert_number_to_words(numBaseUnits) + ' ' + dictionary[baseUnit];
+          if (baseUnit === 1000000 && tmp[0].length === 5) {
+            string += ' không trăm ';
+          }
+          if (remainder1) {
+            string += remainder1 < 100 ? conjunction : separator;
+            string += this._convert_number_to_words(remainder1);
+          }
+          break;
+      }
+
+      if (fraction !== null && !isNaN(fraction)) {
+        string += decimal;
+        const words = [];
+        for (const number of fraction) {
+          words.push(dictionary[number]);
+        }
+        string += words.join(' ');
+        string = string.charAt(0).toUpperCase() + string.slice(1);
+      }
+
+      return string.replace(['mươi năm', 'mươi một'], ['mươi lăm', 'mươi mốt']);
     },
   },
 };
