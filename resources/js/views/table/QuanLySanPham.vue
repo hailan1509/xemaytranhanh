@@ -2,14 +2,14 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.title" :placeholder="'Tên sản phẩm'" style="display: inline-block;width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.month" placeholder="Chọn tháng" style="display: inline-block;width: 200px;" class="filter-item">
+      <el-select v-model="listQuery.month" placeholder="Chọn tháng" style="display: inline-block;width: 150px;" class="filter-item">
         <el-option :key="1" :label="'Theo tháng'" :value="1" />
         <el-option :key="0" :label="'Theo ngày'" :value="0" />
       </el-select>
       <v-select v-model="listQuery.hang_xe" class="el-select filter-item el-select--medium" :options="hangXe" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm hãng" :reduce="option => option.id" />
       <v-select v-model="listQuery.nhom_hang" class="el-select filter-item el-select--medium" :options="nhomHang" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm nhóm hàng" :reduce="option => option.id" />
       <v-select v-model="listQuery.ncc" class="el-select filter-item el-select--medium" :options="nhaCungCap" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm nhà cung cấp" :reduce="option => option.id" />
-      <el-date-picker v-model="listQuery.date" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Xem theo ngày" style="width: 150px;" class="filter-item" />
+      <el-date-picker v-model="listQuery.date" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Xem theo ngày" style="width: 200px;" class="filter-item" />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         {{ $t('table.search') }}
       </el-button>
@@ -69,48 +69,48 @@
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="150px" style="width: 100%; margin-left:10px;">
         <el-tabs style="margin-top:15px;" type="border-card">
           <el-tab-pane :label="'Thông tin sản phẩm'">
-            <el-form-item :label="'Tên sản phẩm'" prop="title">
+            <el-form-item :label="'Tên sản phẩm'" prop="name">
               <el-input v-model="temp.name" />
             </el-form-item>
-            <el-form-item :label="'Hãng xe'" prop="title">
+            <el-form-item :label="'Hãng xe'" prop="hang_xe">
               <v-select v-model="temp.hang_xe" :options="hangXe" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn hãng xe" :reduce="option => option.id" />
             </el-form-item>
-            <el-form-item :label="'Nhóm hàng'" prop="title">
+            <el-form-item :label="'Nhóm hàng'" prop="nhom_hang">
               <v-select v-model="temp.nhom_hang" :options="nhomHang" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn nhóm" :reduce="option => option.id" />
             </el-form-item>
-            <el-form-item :label="'Nhà cung cấp'" prop="title">
+            <el-form-item :label="'Nhà cung cấp'" prop="nha_cung_cap">
               <v-select v-model="temp.nha_cung_cap" :options="nhaCungCap" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn nhà cung cấp" :reduce="option => option.id" />
             </el-form-item>
-            <el-form-item :label="'Ngày nhập'" prop="title">
+            <el-form-item :label="'Ngày nhập'" prop="ngay_nhap">
               <el-date-picker v-model="temp.ngay_nhap" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Chọn ngày nhập hàng" style="width: 200px;" class="filter-item" />
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane :label="'Giá - Số lượng'">
-            <el-form-item :label="'Giá nhập'" prop="title">
+            <el-form-item :label="'Giá nhập'" prop="gia_nhap">
               <el-input v-model="temp.gia_nhap" />
               <div>
                 <span>{{ _convert_number_to_words(temp.gia_nhap) }}</span>
               </div>
             </el-form-item>
-            <el-form-item :label="'Giá bán'" prop="title">
+            <el-form-item :label="'Giá bán'" prop="gia_ban">
               <el-input v-model="temp.gia_ban" />
               <div>
                 <span>{{ _convert_number_to_words(temp.gia_ban) }}</span>
               </div>
             </el-form-item>
-            <el-form-item :label="'Số lượng nhập'" prop="title">
+            <el-form-item :label="'Số lượng nhập'" prop="so_luong_nhap">
               <el-input v-model="temp.so_luong_nhap" />
             </el-form-item>
-            <el-form-item :label="'Số lượng còn lại'" prop="title">
+            <el-form-item :label="'Số lượng còn lại'" prop="so_luong_con_lai">
               <el-input v-model="temp.so_luong_con_lai" />
             </el-form-item>
 
           </el-tab-pane>
           <el-tab-pane :label="'Thêm'">
-            <el-form-item :label="'Phương thức nhập'" prop="title">
+            <el-form-item :label="'Phương thức nhập'" prop="phuong_thuc_nhap">
               <el-input v-model="temp.phuong_thuc_nhap" />
             </el-form-item>
-            <el-form-item :label="'Ghi chú'" prop="title">
+            <el-form-item :label="'Ghi chú'" prop="note">
               <el-input v-model="temp.note" />
             </el-form-item>
             <el-form-item :label="'Hình ảnh'" prop="title">
@@ -248,7 +248,12 @@ export default {
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        name: [{ required: true, message: 'type is required', trigger: 'change' }],
+        name: [{ required: true, message: 'Vui lòng nhập tên sản phẩm!', trigger: 'input' }],
+        nha_cung_cap: [{ required: true, message: 'Vui lòng chọn nhà cung cấp!', trigger: 'change' }],
+        ngay_nhap: [{ required: true, message: 'Vui lòng chọn ngày nhập!', trigger: 'change' }],
+        so_luong_nhap: [{ required: true, message: 'Vui lòng nhập số lượng nhập vào!', trigger: 'input' }],
+        gia_nhap: [{ required: true, message: 'Vui lòng nhập giá nhập vào!', trigger: 'input' }],
+        gia_ban: [{ required: true, message: 'Vui lòng nhập giá bán!', trigger: 'input' }],
       },
       downloadLoading: false,
       hangXe: [],
@@ -282,7 +287,6 @@ export default {
     async getHangXe() {
       const { data } = await lstHang({ limit: 1000 });
       this.hangXe = data.data;
-      console.log(data.data);
     },
     async getNhomHang() {
       const { data } = await lstNhomHang({ limit: 1000 });
@@ -358,7 +362,9 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.id = ''; // mock a id
-          this.temp.image = this.imagePost;
+          if (this.imagePost) {
+            this.temp.image = this.imagePost;
+          }
           var formData = new FormData();
           for (var key in this.temp) {
             formData.append(key, this.temp[key]);
@@ -366,12 +372,35 @@ export default {
           store(formData).then((res) => {
             this.getList();
             this.dialogFormVisible = false;
-            this.$notify({
-              title: res.success ? 'Xong' : 'Lỗi',
-              message: res.message,
-              type: res.success ? 'success' : 'error',
-              duration: 2000,
-            });
+            if (res.success) {
+              this.$notify({
+                title: 'Success',
+                message: res.message,
+                type: 'success',
+                duration: 2000,
+              });
+            } else {
+              if (res[0] === 'error') {
+                let messages = '';
+                Object.values(res.message).forEach((error) => {
+                  messages += '<div><strong>' + error[0] + '</strong></div>';
+                });
+                this.$notify({
+                  title: 'Warning',
+                  dangerouslyUseHTMLString: true,
+                  message: messages,
+                  type: 'warning',
+                  duration: 7000,
+                });
+              } else {
+                this.$notify({
+                  title: 'Error',
+                  message: res.message,
+                  type: 'error',
+                  duration: 5000,
+                });
+              }
+            }
           });
         }
       });
@@ -508,8 +537,6 @@ export default {
       }
 
       if ((number >= 0 && parseInt(number) < 0) || parseInt(number) < 0 - Number.MAX_SAFE_INTEGER) {
-        // overflow
-        console.warn('convert_number_to_words only accepts numbers between -' + Number.MAX_SAFE_INTEGER + ' and ' + Number.MAX_SAFE_INTEGER);
         return false;
       }
 
