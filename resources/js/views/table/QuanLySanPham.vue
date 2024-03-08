@@ -101,7 +101,7 @@
             <el-form-item :label="'Số lượng nhập'" prop="so_luong_nhap">
               <el-input v-model="temp.so_luong_nhap" />
             </el-form-item>
-            <el-form-item :label="'Số lượng còn lại'" prop="so_luong_con_lai">
+            <el-form-item v-if="dialogStatus!=='create'" :label="'Số lượng còn lại'" prop="so_luong_con_lai">
               <el-input v-model="temp.so_luong_con_lai" />
             </el-form-item>
 
@@ -251,9 +251,9 @@ export default {
         name: [{ required: true, message: 'Vui lòng nhập tên sản phẩm!', trigger: 'input' }],
         nha_cung_cap: [{ required: true, message: 'Vui lòng chọn nhà cung cấp!', trigger: 'change' }],
         ngay_nhap: [{ required: true, message: 'Vui lòng chọn ngày nhập!', trigger: 'change' }],
-        so_luong_nhap: [{ required: true, message: 'Vui lòng nhập số lượng nhập vào!', trigger: 'input' }],
-        gia_nhap: [{ required: true, message: 'Vui lòng nhập giá nhập vào!', trigger: 'input' }],
-        gia_ban: [{ required: true, message: 'Vui lòng nhập giá bán!', trigger: 'input' }],
+        so_luong_nhap: [{ required: true, message: 'Vui lòng nhập số lượng nhập vào!', trigger: 'input' }, { regex: '^[0-9]$', message: 'Vui lòng nhập dạng số!', trigger: 'blur' }],
+        gia_nhap: [{ required: true, message: 'Vui lòng nhập giá nhập vào!', trigger: 'input' }, { regex: '^[0-9]$', message: 'Vui lòng nhập dạng số!', trigger: 'blur' }],
+        gia_ban: [{ required: true, message: 'Vui lòng nhập giá bán!', trigger: 'input' }, { regex: '^[0-9]$', message: 'Vui lòng nhập dạng số!', trigger: 'blur' }],
       },
       downloadLoading: false,
       hangXe: [],
