@@ -55,10 +55,18 @@ class SanPhamController extends BaseController
             'image.image' => 'File tải lên không ở dạng ảnh!',
             'image.mimes' => 'Ảnh không hợp lệ!',
             'image.max' => 'Kích thước ảnh phải nhỏ hơn 2048 KB!',
+            'gia_ban.numeric' => 'Giá bán phải ở dạng số!',
+            'gia_nhap.numeric' => 'Giá nhập phải ở dạng số!',
+            'so_luong_con_lai.numeric' => 'Số lượng còn lại phải ở dạng số!',
+            'so_luong_nhap.numeric' => 'Số lượng nhập phải ở dạng số!',
         ];
         $validator = Validator::make($searchParams, [
             'name' => 'required',
             'image'=>'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
+            'gia_ban' => 'numeric',
+            'gia_nhap' => 'numeric',
+            'so_luong_con_lai' => 'nullable|numeric',
+            'so_luong_nhap' => 'numeric',
         ], $messages);
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => $validator->errors(), 'error']);
@@ -113,7 +121,7 @@ class SanPhamController extends BaseController
                 $model->nhom_hang = $searchParams['nhom_hang'];
                 $model->gia_ban = $searchParams['gia_ban'];
                 $model->gia_nhap = $searchParams['gia_nhap'];
-                $model->so_luong_con_lai = $searchParams['so_luong_con_lai'];
+                $model->so_luong_con_lai = $searchParams['so_luong_nhap'];
                 $model->so_luong_nhap = $searchParams['so_luong_nhap'];
                 $model->phuong_thuc_nhap = $searchParams['phuong_thuc_nhap'];
                 $model->ngay_nhap = $searchParams['ngay_nhap'];

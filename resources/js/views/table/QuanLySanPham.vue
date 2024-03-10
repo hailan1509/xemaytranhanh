@@ -67,8 +67,8 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="150px" style="width: 100%; margin-left:10px;">
-        <el-tabs style="margin-top:15px;" type="border-card">
-          <el-tab-pane :label="'Thông tin sản phẩm'">
+        <el-tabs v-model="activeTab" style="margin-top:15px;" type="border-card">
+          <el-tab-pane :label="'Thông tin sản phẩm'" name="first">
             <el-form-item :label="'Tên sản phẩm'" prop="name">
               <el-input v-model="temp.name" />
             </el-form-item>
@@ -251,9 +251,9 @@ export default {
         name: [{ required: true, message: 'Vui lòng nhập tên sản phẩm!', trigger: 'input' }],
         nha_cung_cap: [{ required: true, message: 'Vui lòng chọn nhà cung cấp!', trigger: 'change' }],
         ngay_nhap: [{ required: true, message: 'Vui lòng chọn ngày nhập!', trigger: 'change' }],
-        so_luong_nhap: [{ required: true, message: 'Vui lòng nhập số lượng nhập vào!', trigger: 'input' }, { regex: '^[0-9]$', message: 'Vui lòng nhập dạng số!', trigger: 'blur' }],
-        gia_nhap: [{ required: true, message: 'Vui lòng nhập giá nhập vào!', trigger: 'input' }, { regex: '^[0-9]$', message: 'Vui lòng nhập dạng số!', trigger: 'blur' }],
-        gia_ban: [{ required: true, message: 'Vui lòng nhập giá bán!', trigger: 'input' }, { regex: '^[0-9]$', message: 'Vui lòng nhập dạng số!', trigger: 'blur' }],
+        so_luong_nhap: [{ required: true, message: 'Vui lòng nhập số lượng nhập vào!', trigger: 'input' }],
+        gia_nhap: [{ required: true, message: 'Vui lòng nhập giá nhập vào!', trigger: 'input' }],
+        gia_ban: [{ required: true, message: 'Vui lòng nhập giá bán!', trigger: 'input' }],
       },
       downloadLoading: false,
       hangXe: [],
@@ -262,6 +262,7 @@ export default {
       additionalData: {},
       imgUrl: '',
       imagePost: null,
+      activeTab: 'first',
     };
   },
   created() {
@@ -353,6 +354,7 @@ export default {
     handleCreate() {
       this.resetTemp();
       this.dialogStatus = 'create';
+      this.activeTab = 'first';
       this.dialogFormVisible = true;
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate();
@@ -371,8 +373,8 @@ export default {
           }
           store(formData).then((res) => {
             this.getList();
-            this.dialogFormVisible = false;
             if (res.success) {
+              this.dialogFormVisible = false;
               this.$notify({
                 title: 'Success',
                 message: res.message,
@@ -402,6 +404,14 @@ export default {
               }
             }
           });
+        } else {
+          this.$notify({
+            title: 'Warning',
+            dangerouslyUseHTMLString: true,
+            message: '<b>1 số thông tin chưa đúng. Hãy nhập lại!</b>',
+            type: 'warning',
+            duration: 7000,
+          });
         }
       });
     },
@@ -410,6 +420,7 @@ export default {
       this.temp.timestamp = new Date(this.temp.timestamp);
       this.imgUrl = this.getImgUrl(this.temp.img_path);
       this.dialogStatus = 'update';
+      this.activeTab = 'first';
       this.dialogFormVisible = true;
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate();
@@ -427,8 +438,8 @@ export default {
           }
           store(formData).then((res) => {
             this.getList();
-            this.dialogFormVisible = false;
             if (res.success) {
+              this.dialogFormVisible = false;
               this.$notify({
                 title: 'Success',
                 message: res.message,
@@ -457,6 +468,14 @@ export default {
                 });
               }
             }
+          });
+        } else {
+          this.$notify({
+            title: 'Warning',
+            dangerouslyUseHTMLString: true,
+            message: '<b>1 số thông tin chưa đúng. Hãy nhập lại!</b>',
+            type: 'warning',
+            duration: 7000,
           });
         }
       });
@@ -533,11 +552,11 @@ export default {
       };
 
       if (isNaN(number)) {
-        return false;
+        return 'Hãy nhập số!';
       }
 
       if ((number >= 0 && parseInt(number) < 0) || parseInt(number) < 0 - Number.MAX_SAFE_INTEGER) {
-        return false;
+        return 'Hãy nhập số!';
       }
 
       if (number < 0) {
