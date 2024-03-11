@@ -15,7 +15,7 @@ import Layout from '@/layout';
 /* Router for modules */
 // import elementUiRoutes from './modules/element-ui';
 // import componentRoutes from './modules/components';
-// import chartsRoutes from './modules/charts';
+import hoaDonRoutes from './modules/hoa-don';
 import tableRoutes from './modules/table';
 // import adminRoutes from './modules/admin';
 // import nestedRoutes from './modules/nested';
@@ -140,6 +140,7 @@ export const asyncRoutes = [
   // chartsRoutes,
   // nestedRoutes,
   tableRoutes,
+  hoaDonRoutes,
   // adminRoutes,
   // {
   //   path: '/theme',

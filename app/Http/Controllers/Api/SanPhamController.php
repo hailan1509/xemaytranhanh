@@ -42,8 +42,16 @@ class SanPhamController extends BaseController
             }
             else
                 $q->where('ngay_nhap', $searchParams['date']);
-        })
-        ->paginate($limit);
+        });
+
+        $query = $query->orderBy('ngay_nhap', 'desc');
+
+        if (!empty($searchParams['viewSelect'])) {
+            $query = $query->get();
+        }
+        else {
+            $query = $query->paginate($limit);
+        }
         // dd();
         return response()->json(['data' => $query], 200);
     }

@@ -52,6 +52,9 @@ Route::namespace('Api')->group(function() {
     Route::get('san-pham/list', 'SanPhamController@index');
     Route::post('san-pham/store', 'SanPhamController@store');
     Route::post('san-pham/delete', 'SanPhamController@delete');
+    Route::get('hoa-don/list', 'HoaDonController@index');
+    Route::post('hoa-don/store', 'HoaDonController@store');
+    Route::post('hoa-don/delete', 'HoaDonController@delete');
 });
 
 

@@ -73,20 +73,21 @@ class HoaDonController extends BaseController
             return response()->json(['message' => 'Tham số không đẩy đủ',"success" => false]);
         }
         $pass = false;
-        DB::transaction(function() use($name, $phone, $data, $delivery, $total, &$pass, $currentUser, $dia_chi) {
+        DB::transaction(function() use($name, $phone, $data, $delivery, $total, &$pass, $currentUser, $dia_chi, $request) {
             try {
                 $hoa_don_new = new HoaDon();
-                $hoa_don_new = $currentUser->id;
+                $hoa_don_new->user_id = $currentUser->id;
                 $hoa_don_new->ten_khach_hang = $name;
                 $hoa_don_new->sdt = $phone;
                 $hoa_don_new->dia_chi = $dia_chi;
                 $hoa_don_new->tong_tien = $total;
+                $hoa_don_new->ngay_sinh = $request->get('ngay_sinh', '');
                 $hoa_don_new->chuyen_khoan = $delivery == 'false' ? '0' : '1';
-                $hoa_don_new->ngay = Carbon::now();
+                $hoa_don_new->ngay_ban = Carbon::now();
                 $hoa_don_new->save();
                 $id_new = $hoa_don_new->id;
                 foreach($data as $v) {
-                    $values = ['ma_hoa_don' => $id_new, 'user_id' => $currentUser->id, 'ma_san_pham' => $v['id'], 'gia_ban' => $v['gia'], 'soluong' => $v['soluong'], 'note' => $v['note']];
+                    $values = ['ma_hoa_don' => $id_new, 'user_id' => $currentUser->id, 'ma_san_pham' => $v['id'], 'gia_ban' => $v['gia_ban'], 'soluong' => $v['soluong'], 'note' => $v['note']];
                     ChiTietHoaDon::create($values);
                 }
                 $pass = true;
@@ -116,17 +117,4 @@ class HoaDonController extends BaseController
         
 
     }
-
-    public function getHoaDonByPhong(Request $request) {
-        $ma_phong = $request->get("ma_phong",0);
-        $month = $request->get("month",date('m'));
-
-        $hd = HoaDon::select(['hoa_don.*','phong.ten_phong','nguoi_thue.ten'])->where(["ma_phong" => $ma_phong,"month" =>$month])->leftJoin('phong','hoa_don.ma_phong','phong.id')
-        ->leftJoin('nguoi_thue','hoa_don.ma_nguoi_thue','nguoi_thue.id')->first();
-
-        return response()->json(['data' => $hd], 200);
-
-    }
-
-    
 }
