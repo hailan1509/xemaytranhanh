@@ -298,7 +298,7 @@ export default {
         if (addItem.so_luong_con_lai <= 0) {
           this.$notify({
             title: 'Cảnh báo',
-            message: 'Cửa hàng chỉ còn lại: ' + addItem.so_luong_con_lai + ' sản phẩm này, vui lòng kiểm tra lại!',
+            message: 'Cửa hàng đã hết sản phẩm này, vui lòng kiểm tra lại!',
             type: 'error',
             duration: 3000,
           });
