@@ -20,6 +20,13 @@ class UserResource extends Resource {
       data: permissions,
     });
   }
+
+  getInfo() {
+    return request({
+      url: '/users/getInfo',
+      method: 'get',
+    });
+  }
 }
 
 export { UserResource as default };

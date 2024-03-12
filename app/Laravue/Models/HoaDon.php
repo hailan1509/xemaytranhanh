@@ -27,7 +27,7 @@ class HoaDon extends Model
         'updated_at',
     ];
 
-    public function chiTietHD() : HasMany
+    public function chiTiet() : HasMany
     {
         return $this->hasMany(ChiTietHoaDon::class, 'ma_hoa_don', 'id');
     }

@@ -26,38 +26,46 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column :label="'Ảnh SP'" prop="id" align="center" style="width: 40%;">
+      <el-table-column :label="'Ảnh SP'" prop="id" align="center" width="150px">
         <template slot-scope="scope">
           <img v-if="scope.row.img" :src="getImgUrl(scope.row.img_path)" :alt="scope.row.name" width="100px" height="auto">
         </template>
       </el-table-column>
-      <el-table-column :label="'Tên SP'" style="width: 20%;" align="center">
+      <el-table-column :label="'Tên SP'" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'Giá nhập'" style="width: 20%;" align="center">
+      <el-table-column :label="'Giá nhập'" width="120px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.gia_nhap | toThousandFilter }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'Giá bán'" style="width: 20%;" align="center">
+      <el-table-column :label="'Giá bán'" width="120px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.gia_ban | toThousandFilter }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'Ghi chú'" style="width: 20%;" align="center">
+      <el-table-column :label="'Còn'" width="50px" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.so_luong_con_lai }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="'Ghi chú'" width="120px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.note }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.actions')" align="center" style="width: 40%;" class-name="small-padding fixed-width">
+      <el-table-column :label="$t('table.actions')" align="center" width="300px" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             {{ $t('table.edit') }}
           </el-button>
           <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row)">
             {{ $t('table.delete') }}
+          </el-button>
+          <el-button type="success" size="mini" @click="viewHoaDon(row)">
+            Xem
           </el-button>
         </template>
       </el-table-column>
@@ -146,20 +154,46 @@
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel" />
-        <el-table-column prop="pv" label="Pv" />
+    <el-dialog :visible.sync="dialogPvVisible" :title="'Danh sách hóa đơn'">
+      <el-label>{{ 'Sản phẩm : ' + currentSP.name }}</el-label>
+      <el-table :data="hoaDon" border fit highlight-current-row style="width: 100%">
+        <el-table-column :label="'Tên KH'" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.hoa_don.ten_khach_hang }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="'SĐT'" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.hoa_don.sdt }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="'Ngày mua'" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.hoa_don.ngay_ban | convertDateFromTimestamp }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="'SLượng'" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.so_luong }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="'Giá bán'" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.gia_ban | toThousandFilter }}</span>
+          </template>
+        </el-table-column>
       </el-table>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">{{ $t('table.confirm') }}</el-button>
+        <el-button @click="dialogFormVisible = false">
+          {{ $t('table.cancel') }}
+        </el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { fetchList, store, del } from '@/api/san-pham';
+import { fetchList, store, del, viewHoaDon } from '@/api/san-pham';
 import { fetchList as lstHang } from '@/api/hang-xe';
 import { fetchList as lstNCC } from '@/api/ncc';
 import { fetchList as lstNhomHang } from '@/api/nhom-hang';
@@ -263,6 +297,8 @@ export default {
       imgUrl: '',
       imagePost: null,
       activeTab: 'first',
+      hoaDon: [],
+      currentSP: {},
     };
   },
   created() {
@@ -278,6 +314,15 @@ export default {
         return '';
       }
       return `${window.location.origin}/${imgPath.replace(/\\/g, '/').split('public/')[1]}`;
+    },
+    async viewHoaDon(row) {
+      this.currentSP = row;
+      this.listLoading = true;
+      this.dialogPvVisible = true;
+      const { data } = await viewHoaDon({ id: row.id });
+      console.log(data);
+      this.hoaDon = data;
+      this.listLoading = false;
     },
     beforeUpload(file) {
       this.imagePost = file;

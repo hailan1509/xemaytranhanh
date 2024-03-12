@@ -39,6 +39,7 @@ Route::namespace('Api')->group(function() {
         Route::get('users/{user}/permissions', 'UserController@permissions')->middleware('permission:' . Acl::PERMISSION_PERMISSION_MANAGE);
         Route::put('users/{user}/permissions', 'UserController@updatePermissions')->middleware('permission:' .Acl::PERMISSION_PERMISSION_MANAGE);
         Route::get('roles/{role}/permissions', 'RoleController@permissions')->middleware('permission:' . Acl::PERMISSION_PERMISSION_MANAGE);
+        
     });
     Route::get('nhom-hang/list', 'NhomHangController@index');
     Route::post('nhom-hang/store', 'NhomHangController@store');
@@ -52,9 +53,12 @@ Route::namespace('Api')->group(function() {
     Route::get('san-pham/list', 'SanPhamController@index');
     Route::post('san-pham/store', 'SanPhamController@store');
     Route::post('san-pham/delete', 'SanPhamController@delete');
+    Route::get('san-pham/viewHoaDon', 'SanPhamController@viewHoaDon');
     Route::get('hoa-don/list', 'HoaDonController@index');
     Route::post('hoa-don/store', 'HoaDonController@store');
     Route::post('hoa-don/delete', 'HoaDonController@delete');
+    Route::get('user/getInfo', 'UserController@getInfo');
+    Route::post('user/editProfile', 'UserController@editProfile');
 });
 
 

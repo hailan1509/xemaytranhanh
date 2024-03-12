@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Laravue\Models\ChiTietHoaDon;
 use App\Laravue\Models\SanPham;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -161,5 +162,16 @@ class SanPhamController extends BaseController
         } catch (\Exception $e) {
             return response()->json(['message' => 'Đã có lỗi vui lòng thao tác lại!'], 500);
         }
+    }
+
+    public function viewHoaDon(Request $request) {
+        $currentUser = Auth::user();
+        $searchParams = $request->all();
+        if (!isset($searchParams['id'])) {
+            return response()->json(['data' => []], 200);
+        }
+        $id = $searchParams['id'];
+        $query = ChiTietHoaDon::where(['user_id' => $currentUser->id, 'ma_san_pham' => $id])->orderBy('created_at', 'desc')->with('hoaDon')->get();
+        return response()->json(['data' => $query], 200);
     }
 }

@@ -57,6 +57,45 @@ class UserController extends BaseController
         return UserResource::collection($userQuery->paginate($limit));
     }
 
+    public function getInfo(Request $request) {
+        $currentUser = Auth::user();
+        $query = User::find($currentUser->id);
+        return response()->json(['data' => $query], 200);
+    }
+
+    public function editProfile(Request $request) {
+        try {
+            $currentUser = Auth::user();
+            $model = User::find($currentUser->id);
+            if (empty($request->input('is_chang_pass'))) {
+                $model->stk = $request->input('stk', '');
+                $model->ten_cua_hang = $request->input('ten_cua_hang', '');
+                $model->noi_dung_ck = $request->input('noi_dung_ck', '');
+                $model->loai_ngan_hang = $request->input('loai_ngan_hang', '');
+                $model->dia_chi = $request->input('dia_chi', '');
+                $model->phone = $request->input('phone', '');
+            }
+            else {
+                $validator = Validator::make(
+                    array_merge(
+                        [
+                            'password' => ['required', 'min:6'],
+                            'confirmPassword' => 'same:password',
+                        ]
+                    )
+                );
+                if ($validator->fails()) {
+                    return response()->json(['success' => false, 'message' => 'Mật khẩu từ 6 ký tự, không để trống và 2 mật khẩu phải trùng khớp!'], 403);
+                }
+                $model->password = Hash::make($request->input('password'));
+            }
+            $model->save();
+            return response()->json(['success' => true, 'message' => 'Thay đổi thành công!'], 200);
+        } catch(\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Đã có lỗi xảy ra!'], 200);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *

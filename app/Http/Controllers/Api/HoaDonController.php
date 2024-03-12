@@ -10,7 +10,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Laravue\Models\HoaDon;
-use App\Laravue\Models\KhachHang;
+use App\Laravue\Models\SanPham;
 use App\Laravue\Models\ChiTietHoaDon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -39,23 +39,27 @@ class HoaDonController extends BaseController
             return response()->json(['data' => $query], 200);
         }
         else{
-            $date = $searchParams['date'];
-            $month = $searchParams['month'];
-            $phone = $searchParams['phone'];
-            $query = HoaDon::where('user_id', $currentUser->id);
+            $date = isset($searchParams['date']) ? $searchParams['date'] : '';
+            $month = isset($searchParams['month']) ? $searchParams['month'] : '';
+            $title = isset($searchParams['title']) ? ($searchParams['title']) : '';
+            $query = HoaDon::where(['user_id' => $currentUser->id])->whereNull('deleted_at');
             if (!empty($date)) {
                 if($month) {
-                    $arr_date = explode('/',$date);
-                    $query->whereMonth('ngay', $arr_date[1])->whereYear('ngay', $arr_date[0]);
+                    $arr_date = explode('-',$date);
+                    if (count($arr_date) == 3) {
+                        $query->whereMonth('ngay_ban', $arr_date[1])->whereYear('ngay_ban', $arr_date[0]);
+                    }
                 }
                 else {
-                    $query->whereDate('ngay', $date);
+                    $query->whereDate('ngay_ban', $date);
                 }
             }
-            if(!empty($phone)) {
-                $query->where('sdt', $phone);
+            if(!empty($title)) {
+                $query->where(function ($q) use ($title) {
+                    $q->where('ten_khach_hang', 'like' , '%'.$title.'%')->orWhere('sdt', 'like', '%'.$title.'%');
+                });
             }
-            $data = $query->orderBy('ngay_ban')->paginate($limit);
+            $data = $query->with(['chiTiet', 'chiTiet.sanPham'])->orderBy('ngay_ban', 'desc')->paginate($limit);
             return response()->json(['data' => $data], 200);
         }
 
@@ -67,7 +71,7 @@ class HoaDonController extends BaseController
         $phone = $request->get('phone', '');
         $dia_chi = $request->get('dia_chi', '');
         $total = $request->get('total', '0');
-        $delivery = $request->get('delivery', 'false');
+        $delivery = $request->get('delivery', false);
         $data = $request->get('data', []);
         if(empty($data) || empty($name) || empty($phone)) {
             return response()->json(['message' => 'Tham số không đẩy đủ',"success" => false]);
@@ -82,13 +86,23 @@ class HoaDonController extends BaseController
                 $hoa_don_new->dia_chi = $dia_chi;
                 $hoa_don_new->tong_tien = $total;
                 $hoa_don_new->ngay_sinh = $request->get('ngay_sinh', '');
-                $hoa_don_new->chuyen_khoan = $delivery == 'false' ? '0' : '1';
+                $hoa_don_new->note = $request->get('note', '');
+                $hoa_don_new->chuyen_khoan = $delivery == false ? 0 : 1;
                 $hoa_don_new->ngay_ban = Carbon::now();
                 $hoa_don_new->save();
                 $id_new = $hoa_don_new->id;
                 foreach($data as $v) {
-                    $values = ['ma_hoa_don' => $id_new, 'user_id' => $currentUser->id, 'ma_san_pham' => $v['id'], 'gia_ban' => $v['gia_ban'], 'soluong' => $v['soluong'], 'note' => $v['note']];
-                    ChiTietHoaDon::create($values);
+                    $sp = SanPham::find($v['id']);
+                    if (!empty($sp)) {
+                        $values = ['ma_hoa_don' => $id_new, 'user_id' => $currentUser->id, 'ma_san_pham' => $v['id'], 'gia_ban' => $v['gia_ban'], 'so_luong' => $v['soluong']];
+                        ChiTietHoaDon::create($values);
+                        $sp->so_luong_con_lai = $sp->so_luong_con_lai - (int)$v['soluong'];
+                        $sp->save();
+                    }
+                    else {
+                        DB::rollback();
+                        return response()->json(['message' => "Đã có sản phẩm không tồn tại trong hệ thống!","success" => false]);
+                    }
                 }
                 $pass = true;
                 DB::commit();

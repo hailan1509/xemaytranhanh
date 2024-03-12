@@ -28,4 +28,9 @@ class ChiTietHoaDon extends Model
     {
         return $this->hasOne(SanPham::class, 'id', 'ma_san_pham');
     }
+
+    public function hoaDon() : HasOne
+    {
+        return $this->hasOne(HoaDon::class, 'id', 'ma_hoa_don');
+    }
 }

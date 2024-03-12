@@ -7,15 +7,15 @@ const hoaDonRoutes = {
   name: 'Hoá đơn',
   meta: {
     title: 'Hoá đơn',
-    icon: 'table',
+    icon: 'component',
     permissions: ['view menu table'],
   },
   children: [
     {
-      path: 'san-pham',
-      component: () => import('@/views/table/QuanLySanPham'),
-      name: 'Quản lý hàng',
-      meta: { title: 'Quản lý hàng' },
+      path: '/list',
+      component: () => import('@/views/table/QuanLyHoaDon'),
+      name: 'Quản lý hóa đơn',
+      meta: { title: 'Quản lý hóa đơn' },
     },
     {
       path: 'create',

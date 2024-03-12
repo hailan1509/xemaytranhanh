@@ -23,3 +23,11 @@ export function del(data) {
     data,
   });
 }
+
+export function viewHoaDon(query) {
+  return request({
+    url: '/san-pham/viewHoaDon',
+    method: 'get',
+    params: query,
+  });
+}

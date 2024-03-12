@@ -68,6 +68,7 @@
         </el-row>
       </el-form>
       <el-table
+        v-if="newData.length > 0"
         ref="dragTable"
         border
         fit highlight-current-row
@@ -78,34 +79,39 @@
             {{ scope.row.name }}
           </template>
         </el-table-column>
-        <el-table-column label="SLượng">
+        <el-table-column label="SLượng" width="100px">
           <template slot-scope="scope">
             <el-input v-model="scope.row.soluong" :min="min" placeholder="Số lượng" style="width: 100%" />
           </template>
         </el-table-column>
-        <el-table-column label="Giá">
+        <el-table-column label="Giá" width="120px">
           <template slot-scope="scope">
-            {{ scope.row.gia_ban | toThousandFilter }}
+            <el-input v-model="scope.row.gia_ban" />
           </template>
         </el-table-column>
-        <el-table-column label="KMãi">
+        <el-table-column label="KMãi" width="100px">
           <template slot-scope="scope">
             <el-input v-model="scope.row.gia_khuyen_mai" :min="min" placeholder="KMãi" style="width: 100%" />
           </template>
         </el-table-column>
-        <el-table-column label="TTiền">
+        <el-table-column label="TTiền" width="120px">
           <template slot-scope="scope">
             {{ parseInt(scope.row.gia_khuyen_mai) ? Math.floor((scope.row.soluong * scope.row.gia_ban) - (scope.row.soluong * scope.row.gia_ban) * parseInt(scope.row.gia_khuyen_mai) / 100) : scope.row.soluong * scope.row.gia_ban | toThousandFilter }}
           </template>
         </el-table-column>
-        <el-table-column label="Xoá">
+        <el-table-column label="Xoá" width="50px">
           <template slot-scope="scope">
             <i class="el-icon-error" @click="deleteDV(scope.row.id)" />
           </template>
         </el-table-column>
       </el-table>
       <!-- <el-form-item label="Chuyển khoản"> -->
-      <el-form label-width="200px">
+      <el-form v-if="newData.length > 0" label-width="150px" style="margin-top: 10px">
+        <el-form-item label="Ghi chú">
+          <el-input v-model="form.note" placeholder="Chú thích thêm" />
+        </el-form-item>
+      </el-form>
+      <el-form v-if="newData.length > 0" label-width="150px">
         <el-form-item label="Chuyển khoản">
           <el-switch v-model="form.delivery" />
         </el-form-item>
@@ -119,20 +125,20 @@
         Tạo hóa đơn
       </el-button>
       <!-- </el-form-item> -->
-      <el-dialog :visible.sync="dialogPvVisible" title="Tạo hoá đơn thành công" width="550px !important" backdrop-static>
+      <el-dialog :visible.sync="dialogPvVisible" title="Xem thông tin hóa đơn" width="550px !important" backdrop-static>
         <el-row class="line">
           <el-col :span="24">
-            <h2>SALON BÙI HIỆP</h2>
+            <h2>{{ user.ten_cua_hang }}</h2>
           </el-col>
         </el-row>
         <el-row class="line">
           <el-col :span="24">
-            <b>147 Nguyễn Chí Thanh - Thành phố Hải Dương - HD</b>
+            <b>{{ user.dia_chi }}</b>
           </el-col>
         </el-row>
         <el-row class="line">
           <el-col :span="24">
-            <b>Điện thoại : 0928994636 - 0931578820</b>
+            <b>Điện thoại : {{ user.phone }}</b>
           </el-col>
         </el-row>
         <el-row class="line">
@@ -142,7 +148,7 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <p>Ngày vào : {{ currentDate() }}</p>
+            <p>Ngày mua : {{ currentDate() }}</p>
           </el-col>
         </el-row>
         <el-row>
@@ -155,17 +161,17 @@
         </el-row>
         <table class="service-table text-center">
           <thead class="text-center">
-            <th width="35%">Tên dịch vụ</th>
-            <th width="15%">SL</th>
-            <th width="15%">Giá</th>
-            <th width="20%">Chiết khấu</th>
-            <th width="15%">TT</th>
+            <th>Tên SP</th>
+            <th width="50px">SL</th>
+            <th width="120px">Giá</th>
+            <th width="50px">KM</th>
+            <th width="150px">TTiền</th>
           </thead>
           <tbody class="text-center">
             <tr v-for="item of newData" :key="item.id">
               <td>{{ item.name }}</td>
               <td>{{ item.soluong }}</td>
-              <td>{{ item.gia_ban | toThousandFilter }} VNĐ</td>
+              <td>{{ item.gia_ban | toThousandFilter }}</td>
               <td>{{ item.gia_khuyen_mai ? item.gia_khuyen_mai + '%' : '' }}</td>
               <td>{{ parseInt(item.gia_khuyen_mai) ? Math.floor((item.soluong * item.gia_ban) - (item.soluong * item.gia_ban) * parseInt(item.gia_khuyen_mai) / 100) : item.soluong * item.gia_ban | toThousandFilter }} VNĐ</td>
             </tr>
@@ -194,6 +200,7 @@
 <script>
 import { fetchList } from '@/api/san-pham';
 import { store } from '@/api/hoa-don';
+import { getInfo } from '@/api/users';
 import waves from '@/directive/waves'; // Waves directive
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
@@ -220,6 +227,7 @@ export default {
         name: '',
         delivery: false,
         nam_sinh: null,
+        note: '',
       },
       lstDichVu: [],
       dv_id: '',
@@ -232,6 +240,7 @@ export default {
         name: [{ required: true, message: 'Vui lòng nhập tên khách hàng!', trigger: 'blur' }],
         phone: [{ required: true, message: 'Vui lòng số điện thoại!', trigger: 'blur' }],
       },
+      user: {},
     };
   },
   mounted() {
@@ -239,8 +248,15 @@ export default {
   },
   created() {
     this.getList();
+    this.getInfo();
   },
   methods: {
+    async getInfo() {
+      this.listLoading = true;
+      const { data } = await getInfo();
+      this.user = data;
+      this.listLoading = false;
+    },
     async getList() {
       this.listLoading = true;
       const { data } = await fetchList({ viewSelect: 1 });
@@ -459,7 +475,7 @@ export default {
       return string.replace(['mươi năm', 'mươi một'], ['mươi lăm', 'mươi mốt']);
     },
     returnQR() {
-      return 'https://api.vieqr.com/vietqr/VietinBank/106872726015/' + this.tongTien() + '/compact.jpg?NDck=Salon%20Bui%20Hiep%20Xin%20Cam%20On&FullName=SalonBuiHiep&1695820665';
+      return 'https://img.vietqr.io/image/' + this.user.loai_ngan_hang + '-' + this.user.stk + '-compact2.jpg?amount=' + this.tongTien() + '&addInfo=' + this.user.noi_dung_ck;
     },
   },
 };

@@ -21,7 +21,13 @@ class NCCController extends BaseController
         }
         $query = NhaCungCap::where('user_id', $currentUser->id)->when(!empty($searchParams['title']), function ($q) use ($searchParams) {
             $q->where('name', 'like', '%'.$searchParams['title'].'%');
-        })->paginate($limit);
+        });
+        if (!empty($searchParams['viewSelect'])) {
+            $query = $query->get();
+        }
+        else {
+            $query = $query->paginate($limit);
+        }
         return response()->json(['data' => $query], 200);
     }
 
