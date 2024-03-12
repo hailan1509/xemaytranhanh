@@ -67,16 +67,33 @@ class UserController extends BaseController
         try {
             $currentUser = Auth::user();
             $model = User::find($currentUser->id);
-            if (empty($request->input('is_chang_pass'))) {
+            if (empty($request->input('is_change_pass'))) {
+                $validator = Validator::make(
+                    $request->all(),
+                    array_merge(
+                        [
+                            'ten_cua_hang' => 'required',
+                            'loai_ngan_hang' => 'required',
+                            'dia_chi' => 'required',
+                            'stk' => 'required',
+                            'phone' => 'required',
+                        ]
+                    )
+                );
+                if ($validator->fails()) {
+                    return response()->json(['success' => false, 'message' => 'Dữ liệu nhập vào chưa đúng!'], 200);
+                }
                 $model->stk = $request->input('stk', '');
                 $model->ten_cua_hang = $request->input('ten_cua_hang', '');
                 $model->noi_dung_ck = $request->input('noi_dung_ck', '');
                 $model->loai_ngan_hang = $request->input('loai_ngan_hang', '');
                 $model->dia_chi = $request->input('dia_chi', '');
                 $model->phone = $request->input('phone', '');
+                $message = "Thay đổi thông tin thành công!";
             }
             else {
                 $validator = Validator::make(
+                    $request->all(),
                     array_merge(
                         [
                             'password' => ['required', 'min:6'],
@@ -85,12 +102,13 @@ class UserController extends BaseController
                     )
                 );
                 if ($validator->fails()) {
-                    return response()->json(['success' => false, 'message' => 'Mật khẩu từ 6 ký tự, không để trống và 2 mật khẩu phải trùng khớp!'], 403);
+                    return response()->json(['success' => false, 'message' => 'Mật khẩu từ 6 ký tự, không để trống và 2 mật khẩu phải trùng khớp!'], 200);
                 }
                 $model->password = Hash::make($request->input('password'));
+                $message = "Thay đổi mật khẩu thành công!";
             }
             $model->save();
-            return response()->json(['success' => true, 'message' => 'Thay đổi thành công!'], 200);
+            return response()->json(['success' => true, 'message' => $message], 200);
         } catch(\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Đã có lỗi xảy ra!'], 200);
         }

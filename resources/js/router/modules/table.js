@@ -8,7 +8,7 @@ const tableRoutes = {
   meta: {
     title: 'Quản lý',
     icon: 'table',
-    permissions: ['view menu table'],
+    permissions: ['view menu user'],
   },
   children: [
     // {
@@ -27,7 +27,7 @@ const tableRoutes = {
       path: 'hang-xe',
       component: () => import('@/views/table/QuanLyHangXe'),
       name: 'Quản lý hãng xe',
-      meta: { title: 'Quản lý hãng xe' },
+      meta: { title: 'Quản lý hãng xe', permissions: ['view menu administrator'] },
     },
     {
       path: 'nha-cung-cap',

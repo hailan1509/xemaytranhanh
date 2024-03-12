@@ -57,6 +57,8 @@
           </el-form-item>
         </el-col>
       </el-row>
+    </el-form>
+    <el-form ref="dataForm1" :rules="rules1" :model="pass" label-width="150px">
       <el-row>
         <el-col :xs="24" :sm="12" :lg="24">
           <label class="label" for="">Đổi mật khẩu:</label>
@@ -64,15 +66,22 @@
         <el-col :xs="24" :sm="12" :lg="24">
           <el-form-item label="Mật khẩu mới" prop="password">
             <el-col :span="20">
-              <el-input v-model="form.password" placeholder="Mật khẩu mới" />
+              <el-input v-model="pass.password" placeholder="Mật khẩu mới" show-password />
             </el-col>
           </el-form-item>
         </el-col>
         <el-col :xs="24" :sm="12" :lg="24">
           <el-form-item label="Nhập lại mật khẩu" prop="confirmPassword">
             <el-col :span="20">
-              <el-input v-model="form.confirmPassword" placeholder="Nhập lại mật khẩu" />
+              <el-input v-model="pass.confirmPassword" placeholder="Nhập lại mật khẩu" show-password />
             </el-col>
+          </el-form-item>
+        </el-col>
+        <el-col :xs="24" :sm="24" :lg="24">
+          <el-form-item label="">
+            <el-button type="primary" size="mini" @click="changePass()">
+              Thay đổi
+            </el-button>
           </el-form-item>
         </el-col>
       </el-row>
@@ -89,6 +98,13 @@ export default {
   name: 'SelfProfile',
   components: { vSelect },
   data() {
+    const validatePass = (rule, value, callback) => {
+      if (value.length < 6) {
+        callback(new Error('Mật khẩu ít nhất có 6 ký tự!'));
+      } else {
+        callback();
+      }
+    };
     return {
       form: {
         phone: '',
@@ -98,6 +114,8 @@ export default {
         loai_ngan_hang: '',
         noi_dung_ck: '',
         stk: '',
+      },
+      pass: {
         password: '',
         confirmPassword: '',
       },
@@ -109,6 +127,9 @@ export default {
         stk: [{ required: true, message: 'Vui lòng nhập số tài khoản!', trigger: 'input' }],
         dia_chi: [{ required: true, message: 'Vui lòng nhập địa chỉ!', trigger: 'input' }],
         phone: [{ required: true, message: 'Vui lòng nhập số điện thoại!', trigger: 'input' }],
+      },
+      rules1: {
+        password: [{ required: true, message: 'Vui lòng nhập mật khẩu!', trigger: 'input' }, { validator: validatePass, trigger: 'blur' }],
       },
     };
   },
@@ -129,38 +150,46 @@ export default {
       this.listLoading = false;
     },
     save() {
-      this.$confirm('Bạn có chắc muốn thay đổi?', 'Cảnh báo', {
-        confirmButtonText: 'Có',
-        cancelButtonText: 'Không',
-        type: 'warning',
-      })
-        .then(async() => {
-          editProfile(this.form).then((res) => {
-            this.$notify({
-              title: res.success ? 'Xong' : 'Lỗi',
-              message: res.message,
-              type: res.success ? 'success' : 'error',
-              duration: 2000,
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          this.$confirm('Bạn có chắc muốn thay đổi?', 'Cảnh báo', {
+            confirmButtonText: 'Có',
+            cancelButtonText: 'Không',
+            type: 'warning',
+          })
+            .then(async() => {
+              editProfile(this.form).then((res) => {
+                this.$notify({
+                  title: res.success ? 'Xong' : 'Lỗi',
+                  message: res.message,
+                  type: res.success ? 'success' : 'error',
+                  duration: 2000,
+                });
+              });
             });
-          });
-        });
+        }
+      });
     },
     changePass() {
-      this.$confirm('Bạn có chắc muốn thay đổi?', 'Cảnh báo', {
-        confirmButtonText: 'Có',
-        cancelButtonText: 'Không',
-        type: 'warning',
-      })
-        .then(async() => {
-          editProfile({ is_change_pass: 1, ...this.form }).then((res) => {
-            this.$notify({
-              title: res.success ? 'Xong' : 'Lỗi',
-              message: res.message,
-              type: res.success ? 'success' : 'error',
-              duration: 2000,
+      this.$refs['dataForm1'].validate((valid) => {
+        if (valid) {
+          this.$confirm('Bạn có chắc muốn thay đổi?', 'Cảnh báo', {
+            confirmButtonText: 'Có',
+            cancelButtonText: 'Không',
+            type: 'warning',
+          })
+            .then(async() => {
+              editProfile({ is_change_pass: 1, ...this.pass }).then((res) => {
+                this.$notify({
+                  title: res.success ? 'Xong' : 'Lỗi',
+                  message: res.message,
+                  type: res.success ? 'success' : 'error',
+                  duration: 2000,
+                });
+              });
             });
-          });
-        });
+        }
+      });
     },
   },
 };

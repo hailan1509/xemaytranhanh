@@ -81,7 +81,7 @@
         </el-table-column>
         <el-table-column label="SLượng" width="100px">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.soluong" :min="min" placeholder="Số lượng" style="width: 100%" />
+            <el-input v-model="scope.row.soluong" :min="min" placeholder="Số lượng" style="width: 100%" @input="handleSoLuong(scope.row)" />
           </template>
         </el-table-column>
         <el-table-column label="Giá" width="120px">
@@ -263,9 +263,18 @@ export default {
       this.lstDichVu = data;
       this.listLoading = false;
     },
-    handleInput(value) {
-      // console.log(value);
+    handleSoLuong(row) {
+      if (row.soluong > row.so_luong_con_lai) {
+        this.$notify({
+          title: 'Cảnh báo',
+          message: 'Cửa hàng chỉ còn lại: ' + row.so_luong_con_lai + ' sản phẩm này, vui lòng kiểm tra lại!',
+          type: 'error',
+          duration: 3000,
+        });
+        row.soluong = 1;
+      }
     },
+    handleInput(value) {},
     handleSelect(value) {
       // console.log(value);
     },
@@ -283,8 +292,16 @@ export default {
       const item = this.newData.find(x => x.id === dv_id);
       if (!item) {
         const addItem = this.lstDichVu.find(x => x.id === dv_id);
-        console.log(addItem);
         if (!addItem) {
+          return;
+        }
+        if (addItem.so_luong_con_lai <= 0) {
+          this.$notify({
+            title: 'Cảnh báo',
+            message: 'Cửa hàng chỉ còn lại: ' + addItem.so_luong_con_lai + ' sản phẩm này, vui lòng kiểm tra lại!',
+            type: 'error',
+            duration: 3000,
+          });
           return;
         }
         this.newData = [
@@ -294,8 +311,16 @@ export default {
             soluong: 1,
           },
         ];
-        console.log(this.newData);
       } else {
+        if (item.soluong + 1 > item.so_luong_con_lai) {
+          this.$notify({
+            title: 'Cảnh báo',
+            message: 'Cửa hàng chỉ còn lại: ' + item.so_luong_con_lai + ' sản phẩm này, vui lòng kiểm tra lại!',
+            type: 'error',
+            duration: 3000,
+          });
+          return;
+        }
         item.soluong += 1;
       }
     },
@@ -315,7 +340,7 @@ export default {
         this.$notify({
           title: 'Cảnh báo',
           message: 'Hãy nhập đầy đủ thông tin!',
-          type: 'danger',
+          type: 'error',
           duration: 2000,
         });
         return;
@@ -341,7 +366,7 @@ export default {
         this.$notify({
           title: 'Cảnh báo',
           message: message,
-          type: 'danger',
+          type: 'error',
           duration: 2000,
         });
       }

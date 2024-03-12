@@ -8,7 +8,7 @@ const hoaDonRoutes = {
   meta: {
     title: 'Hoá đơn',
     icon: 'component',
-    permissions: ['view menu table'],
+    permissions: ['view menu user'],
   },
   children: [
     {
