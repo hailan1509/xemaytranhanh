@@ -27,7 +27,7 @@ const tableRoutes = {
       path: 'hang-xe',
       component: () => import('@/views/table/QuanLyHangXe'),
       name: 'Quản lý hãng xe',
-      meta: { title: 'Quản lý hãng xe', permissions: ['view menu administrator'] },
+      meta: { title: 'Quản lý hãng xe', permissions: ['view menu charts'] },
     },
     {
       path: 'nha-cung-cap',
