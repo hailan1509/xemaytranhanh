@@ -158,7 +158,7 @@ class SanPhamController extends BaseController
                 return response()->json(['success' => false,'message' => 'Không đủ quyền với thao tác trên!'], 200);
             }
             $model->delete();
-            return response()->json(['success' => true,'message' => 'Thêm thành công!'], 200);
+            return response()->json(['success' => true,'message' => 'Xoá thành công!'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Đã có lỗi vui lòng thao tác lại!'], 500);
         }

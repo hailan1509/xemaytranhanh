@@ -63,16 +63,16 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="150px" style="width: 100%; margin-left:10px;">
-        <el-form-item :label="'Tên nhà cung cấp'" prop="title">
+        <el-form-item :label="'Tên nhà cung cấp'" prop="name">
           <el-input v-model="temp.name" />
         </el-form-item>
-        <el-form-item :label="'Số điện thoại'" prop="title">
+        <el-form-item :label="'Số điện thoại'" prop="phone">
           <el-input v-model="temp.phone" />
         </el-form-item>
-        <el-form-item :label="'Địa chỉ'" prop="title">
+        <el-form-item :label="'Địa chỉ'" prop="address">
           <el-input v-model="temp.address" />
         </el-form-item>
-        <el-form-item :label="'Ghi chú'" prop="title">
+        <el-form-item :label="'Ghi chú'" prop="note">
           <el-input v-model="temp.note" />
         </el-form-item>
       </el-form>
@@ -168,7 +168,7 @@ export default {
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        name: [{ required: true, message: 'type is required', trigger: 'change' }],
+        name: [{ required: true, message: 'Tên nhà cung cấp không để trống!', trigger: 'input' }],
       },
       downloadLoading: false,
     };
@@ -231,7 +231,7 @@ export default {
         if (valid) {
           this.temp.id = ''; // mock a id
           store(this.temp).then((res) => {
-            this.list.unshift(this.temp);
+            this.getList();
             this.dialogFormVisible = false;
             this.$notify({
               title: res.success ? 'Xong' : 'Lỗi',
@@ -257,13 +257,7 @@ export default {
         if (valid) {
           const tempData = Object.assign({}, this.temp);
           store(tempData).then(() => {
-            for (const v of this.list) {
-              if (v.id === this.temp.id) {
-                const index = this.list.indexOf(v);
-                this.list.splice(index, 1, this.temp);
-                break;
-              }
-            }
+            this.getList();
             this.dialogFormVisible = false;
             this.$notify({
               title: 'Success',

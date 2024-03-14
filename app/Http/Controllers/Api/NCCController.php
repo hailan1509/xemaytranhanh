@@ -39,11 +39,11 @@ class NCCController extends BaseController
             if ($id) {
                 $model = NhaCungCap::find($searchParams['id']);
                 if ($model) {
-                    $model->name = $searchParams['name'];
+                    $model->name = $request->input('name', '');
                     $model->user_id = $currentUser->id;
-                    $model->phone = $searchParams['phone'];
-                    $model->address = $searchParams['address'];
-                    $model->note = $searchParams['note'];
+                    $model->phone = $request->input('phone', '');
+                    $model->address = $request->input('address', '');
+                    $model->note = $request->input('note', '');
                     $model->save();
                     return response()->json(['success' => true,'message' => 'Sửa thành công!'], 200);
                 }
@@ -51,11 +51,11 @@ class NCCController extends BaseController
             }
             else {
                 $model = new NhaCungCap();
-                $model->name = $searchParams['name'];
+                $model->name = $request->input('name', '');
                 $model->user_id = $currentUser->id;
-                $model->note = $searchParams['note'];
-                $model->phone = $searchParams['phone'];
-                $model->address = $searchParams['address'];
+                $model->note = $request->input('note', '');
+                $model->phone = $request->input('phone', '');
+                $model->address = $request->input('address', '');
                 $model->save();
                 return response()->json(['success' => true,'message' => 'Thêm thành công!'], 200);
             }
