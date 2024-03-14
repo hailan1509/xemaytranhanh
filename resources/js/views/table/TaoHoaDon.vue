@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div v-loading="listLoading" class="app-container">
     <div class="filter-container">
       <div class="container">
         <div class="row line">
@@ -345,6 +345,7 @@ export default {
         });
         return;
       }
+      this.listLoading = true;
       const tmp = {
         data: this.newData,
         total: this.tongTien(),
@@ -362,6 +363,7 @@ export default {
           duration: 2000,
         });
         this.dialogPvVisible = true;
+        this.listLoading = false;
       } else {
         this.$notify({
           title: 'Cảnh báo',
@@ -369,6 +371,7 @@ export default {
           type: 'error',
           duration: 2000,
         });
+        this.listLoading = false;
       }
     },
     currentDate() {

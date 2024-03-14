@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div v-loading="listLoading" class="app-container">
     <el-form ref="dataForm" :rules="rules" :model="form" label-width="150px">
       <el-row>
         <el-col :xs="24" :sm="12" :lg="24">
@@ -158,6 +158,7 @@ export default {
             type: 'warning',
           })
             .then(async() => {
+              this.listLoading = true;
               editProfile(this.form).then((res) => {
                 this.$notify({
                   title: res.success ? 'Xong' : 'Lỗi',
@@ -165,6 +166,7 @@ export default {
                   type: res.success ? 'success' : 'error',
                   duration: 2000,
                 });
+                this.listLoading = false;
               });
             });
         }
@@ -179,6 +181,7 @@ export default {
             type: 'warning',
           })
             .then(async() => {
+              this.listLoading = true;
               editProfile({ is_change_pass: 1, ...this.pass }).then((res) => {
                 this.$notify({
                   title: res.success ? 'Xong' : 'Lỗi',
@@ -186,6 +189,7 @@ export default {
                   type: res.success ? 'success' : 'error',
                   duration: 2000,
                 });
+                this.listLoading = false;
               });
             });
         }
