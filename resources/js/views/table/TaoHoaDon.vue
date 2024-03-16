@@ -9,10 +9,29 @@
       <el-form ref="dataForm" :rules="rules" :model="form" label-width="150px">
         <el-row>
           <el-col :xs="24" :sm="12" :lg="6">
+            <el-form-item label="Loại hóa đơn">
+              <el-col :span="24">
+                <el-select v-model="form.type" placeholder="Chọn loại hóa đơn" style="width: 150px;" class="filter-item">
+                  <el-option :key="1" :label="'Bán lẻ'" :value="1" />
+                  <el-option :key="0" :label="'Bán buôn'" :value="0" />
+                </el-select>
+              </el-col>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12" :lg="6">
+            <el-form-item label="Ngày bán">
+              <el-col :span="24">
+                <el-date-picker v-model="form.ngay_ban" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Ngày bán" style="width: 100%;" />
+              </el-col>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="form.type">
+          <el-col :xs="24" :sm="12" :lg="6">
             <label class="label" for="">Thông tin khách hàng:</label>
           </el-col>
         </el-row>
-        <el-row>
+        <el-row v-if="form.type">
           <el-col :xs="24" :sm="12" :lg="6">
             <el-form-item label="Họ và tên" prop="name">
               <el-col :span="24">
@@ -28,9 +47,9 @@
             </el-form-item>
           </el-col>
           <el-col :xs="24" :sm="12" :lg="6">
-            <el-form-item label="Ngày sinh">
+            <el-form-item label="CCCD">
               <el-col :span="24">
-                <el-date-picker v-model="form.ngay_sinh" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Ngày sinh" style="width: 100%;" />
+                <el-input v-model="form.cccd" placeholder="CMT hoặc CCCD" />
               </el-col>
             </el-form-item>
           </el-col>
@@ -38,6 +57,15 @@
             <el-form-item label="Địa chỉ">
               <el-col :span="24">
                 <el-input v-model="form.dia_chi" placeholder="Địa chỉ" />
+              </el-col>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="!form.type">
+          <el-col :xs="24" :sm="12" :lg="6">
+            <el-form-item label="Chọn nhà xuất bán" prop="nha_xuat_ban">
+              <el-col :span="24">
+                <v-select v-model="form.nha_xuat_ban" :options="lstNXB" label="name" placeholder="Tìm kiếm nhà xuất bán" :reduce="option => option.id" @input="handleInput" @select="handleSelect" />
               </el-col>
             </el-form-item>
           </el-col>
@@ -61,7 +89,7 @@
             </el-button>
           </el-col>
           <el-col :xs="12" :sm="6" :lg="3">
-            <el-button style="margin-left: 10px;" class="filter-item" type="primary" :disabled="!form.phone || newData.length == 0" @click="dialogPvVisible = true">
+            <el-button style="margin-left: 10px;" class="filter-item" type="primary" :disabled="newData.length == 0" @click="dialogPvVisible = true">
               Xem hoá đơn
             </el-button>
           </el-col>
@@ -121,7 +149,7 @@
           <img :src="returnQR()" alt="" width="100%">
         </el-col>
       </el-row>
-      <el-button type="primary" :disabled="!form.phone || newData.length == 0" style="width:100%" @click="save()">
+      <el-button type="primary" :disabled="newData.length == 0" style="width:100%" @click="save()">
         Tạo hóa đơn
       </el-button>
       <!-- </el-form-item> -->
@@ -148,7 +176,7 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <p>Ngày mua : {{ currentDate() }}</p>
+            <p>Ngày mua : {{ form.ngay_ban | convertDateFromTimestamp }}</p>
           </el-col>
         </el-row>
         <el-row>
@@ -199,6 +227,7 @@
 </template>
 <script>
 import { fetchList } from '@/api/san-pham';
+import { fetchList as getNXB } from '@/api/nxb';
 import { store } from '@/api/hoa-don';
 import { getInfo } from '@/api/users';
 import waves from '@/directive/waves'; // Waves directive
@@ -226,10 +255,15 @@ export default {
         phone: '',
         name: '',
         delivery: false,
-        nam_sinh: null,
+        ngay_ban: '',
         note: '',
+        type: 1,
+        nha_xuat_ban: '',
+        cccd: '',
+        dia_chi: '',
       },
       lstDichVu: [],
+      lstNXB: [],
       dv_id: '',
       newData: [],
       lstKhachHang: [],
@@ -237,8 +271,8 @@ export default {
       dialogPvVisible: false,
       mangso: ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'],
       rules: {
-        name: [{ required: true, message: 'Vui lòng nhập tên khách hàng!', trigger: 'blur' }],
-        phone: [{ required: true, message: 'Vui lòng số điện thoại!', trigger: 'blur' }],
+        // name: [{ required: true, message: 'Vui lòng nhập tên khách hàng!', trigger: 'blur' }],
+        // phone: [{ required: true, message: 'Vui lòng số điện thoại!', trigger: 'blur' }],
       },
       user: {},
     };
@@ -249,12 +283,19 @@ export default {
   created() {
     this.getList();
     this.getInfo();
+    this.getNXB();
   },
   methods: {
     async getInfo() {
       this.listLoading = true;
       const { data } = await getInfo();
       this.user = data;
+      this.listLoading = false;
+    },
+    async getNXB() {
+      this.listLoading = true;
+      const { data } = await getNXB({ viewSelect: 1 });
+      this.lstNXB = data;
       this.listLoading = false;
     },
     async getList() {
@@ -336,43 +377,51 @@ export default {
       return tt;
     },
     async save() {
-      if (this.form.name.length === 0 || this.form.phone.length === 0 || this.newData.length === 0) {
+      if ((this.form.type === 1 && (this.form.name.length === 0 || this.form.phone.length === 0)) || (this.form.type === 0 && this.form.nha_xuat_ban.length === 0) || this.newData.length === 0) {
         this.$notify({
           title: 'Cảnh báo',
-          message: 'Hãy nhập đầy đủ thông tin!',
+          message: 'Thông tin hóa đơn chưa đầy đủ, vui lòng xem lại!',
           type: 'error',
-          duration: 2000,
+          duration: 3000,
         });
         return;
       }
-      this.listLoading = true;
-      const tmp = {
-        data: this.newData,
-        total: this.tongTien(),
-      };
-      const params = {
-        ... this.form,
-        ...tmp,
-      };
-      const { success, message } = await store(params);
-      if (success) {
-        this.$notify({
-          title: 'Thông báo',
-          message: message,
-          type: 'success',
-          duration: 2000,
+      this.$confirm('Bạn có chắc muốn tạo hóa đơn?', 'Xác nhận', {
+        confirmButtonText: 'Có',
+        cancelButtonText: 'Không',
+        type: 'succcess',
+      })
+        .then(async() => {
+          this.listLoading = true;
+          const tmp = {
+            data: this.newData,
+            total: this.tongTien(),
+          };
+          const params = {
+            ... this.form,
+            ...tmp,
+          };
+          const { success, message } = await store(params);
+          if (success) {
+            this.$notify({
+              title: 'Thông báo',
+              message: message,
+              type: 'success',
+              duration: 2000,
+            });
+            // this.dialogPvVisible = true;
+            this.$router.push({ path: '/hoa-don/list', query: {}}, onAbort => {});
+            this.listLoading = false;
+          } else {
+            this.$notify({
+              title: 'Cảnh báo',
+              message: message,
+              type: 'error',
+              duration: 2000,
+            });
+            this.listLoading = false;
+          }
         });
-        this.dialogPvVisible = true;
-        this.listLoading = false;
-      } else {
-        this.$notify({
-          title: 'Cảnh báo',
-          message: message,
-          type: 'error',
-          duration: 2000,
-        });
-        this.listLoading = false;
-      }
     },
     currentDate() {
       const today = new Date();

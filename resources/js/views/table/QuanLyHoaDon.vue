@@ -2,9 +2,13 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.title" :placeholder="'Tên khách hàng hoặc số điện thoại'" style="display: inline-block;width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.month" placeholder="Chọn tháng" style="display: inline-block;width: 150px;" class="filter-item">
+      <el-select v-model="listQuery.month" placeholder="Chọn tháng" style="display: inline-block;width: 150px;" class="filter-item" @change="getList()">
         <el-option :key="1" :label="'Theo tháng'" :value="1" />
         <el-option :key="0" :label="'Theo ngày'" :value="0" />
+      </el-select>
+      <el-select v-model="listQuery.type" placeholder="Chọn loại hóa đơn" style="display: inline-block;width: 150px;" class="filter-item" @change="getList()">
+        <el-option :key="1" :label="'Bán lẻ'" :value="1" />
+        <el-option :key="0" :label="'Bán buôn'" :value="0" />
       </el-select>
       <el-date-picker v-model="listQuery.date" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Xem theo ngày" style="width: 200px;" class="filter-item" />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
@@ -21,32 +25,52 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column :label="'Tên KH'" style="width: 20%;" align="center">
+      <el-table-column v-if="listQuery.type" :label="'Tên KH'" width="150px" align="left">
         <template slot-scope="scope">
           <span>{{ scope.row.ten_khach_hang }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'Số điện thoại'" style="width: 20%;" align="center">
+      <el-table-column v-if="listQuery.type" :label="'Số điện thoại'" width="150px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.sdt }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'Ngày mua'" style="width: 20%;" align="center">
+      <el-table-column v-if="!listQuery.type" :label="'Tên nhà xuất bán'" min-width="250px" align="left">
+        <template slot-scope="scope">
+          <span>{{ scope.row.nxb ? scope.row.nxb.name : '' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column v-if="!listQuery.type" :label="'Số lượng'" min-width="120px" align="center">
+        <template slot-scope="scope">
+          <span>{{ chiTietInfo(scope.row.chi_tiet) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column v-if="listQuery.type" :label="'Tên SP'" min-width="300px" align="left">
+        <template slot-scope="scope">
+          <span>{{ scope.row.chi_tiet.length && scope.row.chi_tiet[0].san_pham ? scope.row.chi_tiet[0].san_pham.name : '' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column v-if="listQuery.type" :label="'NCC'" width="150px" align="left">
+        <template slot-scope="scope">
+          <span>{{ scope.row.chi_tiet.length && scope.row.chi_tiet[0].san_pham && scope.row.chi_tiet[0].san_pham.nha_cung_cap_info ? scope.row.chi_tiet[0].san_pham.nha_cung_cap_info.name : '' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="'Ngày mua'" width="100px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.ngay_ban | convertDateFromTimestamp }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'Tổng tiền'" style="width: 20%;" align="center">
+      <el-table-column :label="'Tổng tiền'" width="120px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.tong_tien | toThousandFilter }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'Ghi chú'" style="width: 20%;" align="center">
+      <el-table-column :label="'Ghi chú'" width="150px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.note }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.actions')" align="center" style="width: 40%;" class-name="small-padding fixed-width">
+      <el-table-column :label="$t('table.actions')" align="center" width="200px" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
           <el-button size="mini" type="success" @click="handleView(row)">
             Xem
@@ -68,27 +92,32 @@
         fit highlight-current-row
         :data="chiTiet"
       >
-        <el-table-column label="Tên SP">
+        <el-table-column label="Tên SP" min-width="250px">
           <template slot-scope="scope">
             {{ scope.row.san_pham.name }}
           </template>
         </el-table-column>
-        <el-table-column label="SLượng" width="100px">
+        <el-table-column label="NCC" width="150px">
+          <template slot-scope="scope">
+            {{ scope.row.san_pham.nha_cung_cap_info ? scope.row.san_pham.nha_cung_cap_info.name : '' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="SLượng" width="100px" align="center">
           <template slot-scope="scope">
             {{ scope.row.so_luong }}
           </template>
         </el-table-column>
-        <el-table-column label="Giá nhập" width="120px">
+        <el-table-column label="Giá nhập" width="120px" align="center">
           <template slot-scope="scope">
             {{ scope.row.san_pham.gia_nhap | toThousandFilter }}
           </template>
         </el-table-column>
-        <el-table-column label="Giá bán" width="120px">
+        <el-table-column label="Giá bán" width="120px" align="center">
           <template slot-scope="scope">
             {{ scope.row.gia_ban | toThousandFilter }}
           </template>
         </el-table-column>
-        <el-table-column label="TTiền" width="120px">
+        <el-table-column label="TTiền" width="120px" align="center">
           <template slot-scope="scope">
             {{ scope.row.gia_ban * scope.row.so_luong | toThousandFilter }}
           </template>
@@ -99,6 +128,77 @@
           {{ $t('table.cancel') }}
         </el-button>
       </div>
+    </el-dialog>
+    <el-dialog :visible.sync="dialogPvVisibleHD" title="Xem thông tin hóa đơn" width="650px !important" backdrop-static>
+      <el-row class="line">
+        <el-col :span="24">
+          <h2>{{ user.ten_cua_hang }}</h2>
+        </el-col>
+      </el-row>
+      <el-row class="line">
+        <el-col :span="24">
+          <b>{{ user.dia_chi }}</b>
+        </el-col>
+      </el-row>
+      <el-row class="line">
+        <el-col :span="24">
+          <b>Điện thoại : {{ user.phone }}</b>
+        </el-col>
+      </el-row>
+      <el-row class="line">
+        <el-col :span="24">
+          <h3>HOÁ ĐƠN THANH TOÁN</h3>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <p>Ngày mua : {{ form.ngay_ban | convertDateFromTimestamp }}</p>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <p>Khách hàng : <b>{{ form.ten_khach_hang }}</b></p>
+        </el-col>
+        <el-col :span="12">
+          <p>Số điện thoại : <b>{{ form.sdt }}</b></p>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <p>CCCD hoặc CMT : <b>{{ form.cccd }}</b></p>
+        </el-col>
+        <el-col :span="12">
+          <p>Địa chỉ : <b>{{ form.dia_chi }}</b></p>
+        </el-col>
+      </el-row>
+      <table class="service-table text-center">
+        <thead class="text-center">
+          <th>Tên SP</th>
+          <th>SK - SM</th>
+          <th width="50px">SL</th>
+          <th width="120px">Giá</th>
+          <th width="150px">TTiền</th>
+        </thead>
+        <tbody class="text-center">
+          <tr v-for="item of chiTiet" :key="item.id">
+            <td>{{ item.san_pham ? item.san_pham.name : '' }}</td>
+            <td>{{ item.san_pham ? item.san_pham.short_name : '' }}</td>
+            <td>{{ item.so_luong }}</td>
+            <td>{{ item.gia_ban | toThousandFilter }}</td>
+            <td>{{ item.so_luong * item.gia_ban | toThousandFilter }} VNĐ</td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-right"><b>{{ form.delivery ? 'Chuyển khoản' : 'Tiền mặt' }}</b></td>
+            <td colspan="1"><b>{{ form.tong_tien | toThousandFilter }} VNĐ</b></td>
+          </tr>
+          <tr>
+            <td colspan="5">{{ _convert_number_to_words(form.tong_tien) }}</td>
+          </tr>
+          <tr>
+            <td colspan="5">{{ form.note }}</td>
+          </tr>
+        </tbody>
+      </table>
     </el-dialog>
 
     <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
@@ -119,6 +219,7 @@ import { fetchList as lstHang } from '@/api/hang-xe';
 import { fetchList as lstNCC } from '@/api/ncc';
 import { fetchList as lstNhomHang } from '@/api/nhom-hang';
 import { fetchList as lstHD, del } from '@/api/hoa-don';
+import { getInfo } from '@/api/users';
 import waves from '@/directive/waves'; // Waves directive
 import Pagination from '@/components/Pagination'; // Secondary package based on el-pagination
 // import vSelect from 'vue-select';
@@ -165,7 +266,7 @@ export default {
         limit: 10,
         importance: undefined,
         title: undefined,
-        type: undefined,
+        type: 1,
         sort: '+id',
         month: 0,
         hang_xe: '',
@@ -196,6 +297,7 @@ export default {
         img_path: '',
       },
       dialogFormVisible: false,
+      dialogPvVisibleHD: false,
       dialogStatus: '',
       textMap: {
         update: 'Sửa',
@@ -212,15 +314,30 @@ export default {
       imagePost: null,
       activeTab: 'first',
       chiTiet: [],
+      user: {},
+      form: {
+        sdt: '',
+        ten_khach_hang: '',
+        ngay_ban: '',
+        note: '',
+        cccd: '',
+        dia_chi: '',
+        delivery: '',
+      },
     };
   },
   created() {
-    this.getHangXe();
-    this.getNhomHang();
-    this.getNCC();
+    // this.getHangXe();
+    // this.getNhomHang();
+    // this.getNCC();
     this.getList();
+    this.getInfo();
   },
   methods: {
+    async getInfo() {
+      const { data } = await getInfo();
+      this.user = data;
+    },
     getImgUrl(imgPath) {
       // Chuyển đổi đường dẫn đầy đủ thành URL có thể truy cập được
       if (!imgPath) {
@@ -229,7 +346,12 @@ export default {
       return `${window.location.origin}/${imgPath.replace(/\\/g, '/').split('public/')[1]}`;
     },
     handleView(row) {
-      this.dialogFormVisible = true;
+      if (!this.listQuery.type) {
+        this.dialogFormVisible = true;
+      } else {
+        this.dialogPvVisibleHD = true;
+        this.form = { ...this.form, ...row };
+      }
       this.chiTiet = row.chi_tiet;
     },
     beforeUpload(file) {
@@ -309,6 +431,14 @@ export default {
             this.getList();
           });
         });
+    },
+    chiTietInfo(data) {
+      let str = '';
+      str = data.reduce(function(rs, item) {
+        rs += item.so_luong;
+        return rs;
+      }, 0);
+      return str;
     },
     _convert_number_to_words(number) {
       if (!number) {
@@ -427,3 +557,64 @@ export default {
   },
 };
 </script>
+<style scoped>
+  .line{
+    text-align: center;
+  }
+  .service-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.service-table th,
+.service-table td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.service-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  color: #333;
+}
+
+.service-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.service-table tbody tr:hover {
+  background-color: #e6e6e6;
+}
+
+.service-table td:last-child {
+  text-align: center;
+}
+
+.service-table .delete-button {
+  padding: 6px 10px;
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.service-table .delete-button:hover {
+  background-color: #c0392b;
+}
+
+.service-table .delete-button:active {
+  background-color: #962d22;
+}
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right !important;
+}
+.text-center {
+  text-align: center;
+}
+</style>

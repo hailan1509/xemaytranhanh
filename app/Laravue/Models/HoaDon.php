@@ -5,6 +5,7 @@ namespace App\Laravue\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class HoaDon extends Model
 {
@@ -25,10 +26,17 @@ class HoaDon extends Model
         'deleted_at',
         'created_at',
         'updated_at',
+        'type',
+        'nha_xuat_ban',
+        'cccd',
     ];
 
     public function chiTiet() : HasMany
     {
         return $this->hasMany(ChiTietHoaDon::class, 'ma_hoa_don', 'id');
+    }
+    public function nxb(): HasOne
+    {
+        return $this->hasOne(NhaXuatBan::class, 'id', 'nha_xuat_ban');
     }
 }

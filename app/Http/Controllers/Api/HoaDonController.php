@@ -42,7 +42,9 @@ class HoaDonController extends BaseController
             $date = isset($searchParams['date']) ? $searchParams['date'] : '';
             $month = isset($searchParams['month']) ? $searchParams['month'] : '';
             $title = isset($searchParams['title']) ? ($searchParams['title']) : '';
-            $query = HoaDon::where(['user_id' => $currentUser->id])->whereNull('deleted_at');
+            $type = isset($searchParams['type']) ? ($searchParams['type']) : 1;
+            $nxb = isset($searchParams['nxb']) ? ($searchParams['nxb']) : '';
+            $query = HoaDon::where(['user_id' => $currentUser->id])->whereNull('deleted_at')->where('type', $type);
             if (!empty($date)) {
                 if($month) {
                     $arr_date = explode('-',$date);
@@ -54,12 +56,17 @@ class HoaDonController extends BaseController
                     $query->whereDate('ngay_ban', $date);
                 }
             }
-            if(!empty($title)) {
+            if(!empty($title) && (int)$type == 1) {
                 $query->where(function ($q) use ($title) {
                     $q->where('ten_khach_hang', 'like' , '%'.$title.'%')->orWhere('sdt', 'like', '%'.$title.'%');
                 });
             }
-            $data = $query->with(['chiTiet', 'chiTiet.sanPham'])->orderBy('ngay_ban', 'desc')->paginate($limit);
+            if ((int)$type == 0) {
+                if (!empty($nxb)) {
+                    $query->where('nha_xuat_ban', $nxb);
+                }
+            }
+            $data = $query->with(['chiTiet', 'chiTiet.sanPham', 'nxb', 'chiTiet.sanPham.nhaCungCapInfo'])->orderBy('ngay_ban', 'desc')->paginate($limit);
             return response()->json(['data' => $data], 200);
         }
 
@@ -73,7 +80,7 @@ class HoaDonController extends BaseController
         $total = $request->get('total', '0');
         $delivery = $request->get('delivery', false);
         $data = $request->get('data', []);
-        if(empty($data) || empty($name) || empty($phone)) {
+        if(empty($data) || ((int)$request->get('type', 1) == 1 && (empty($name) || empty($phone))) || ((int)$request->get('type', 1) && empty($request->get('nha_xuat_ban', '')))) {
             return response()->json(['message' => 'Tham số không đẩy đủ',"success" => false]);
         }
         $pass = false;
@@ -84,11 +91,14 @@ class HoaDonController extends BaseController
                 $hoa_don_new->ten_khach_hang = $name;
                 $hoa_don_new->sdt = $phone;
                 $hoa_don_new->dia_chi = $dia_chi;
+                $hoa_don_new->cccd = $request->get('cccd', '');
+                $hoa_don_new->type = $request->get('type', 1);
+                $hoa_don_new->nha_xuat_ban = $request->get('nha_xuat_ban', '');
                 $hoa_don_new->tong_tien = $total;
-                $hoa_don_new->ngay_sinh = $request->get('ngay_sinh', '');
+                // $hoa_don_new->ngay_sinh = $request->get('ngay_sinh', '');
                 $hoa_don_new->note = $request->get('note', '');
                 $hoa_don_new->chuyen_khoan = $delivery == false ? 0 : 1;
-                $hoa_don_new->ngay_ban = Carbon::now();
+                $hoa_don_new->ngay_ban = $request->get('ngay_ban', '') ? : Carbon::now();
                 $hoa_don_new->save();
                 $id_new = $hoa_don_new->id;
                 foreach($data as $v) {

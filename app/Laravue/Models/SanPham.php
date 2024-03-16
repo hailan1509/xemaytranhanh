@@ -37,7 +37,7 @@ class SanPham extends Model
     {
         return $this->hasOne(NhomHang::class, 'id', 'nhom_hang');
     }
-    public function nhaCungCap(): HasOne
+    public function nhaCungCapInfo(): HasOne
     {
         return $this->hasOne(NhaCungCap::class, 'id', 'nha_cung_cap');
     }

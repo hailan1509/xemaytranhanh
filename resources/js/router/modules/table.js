@@ -36,6 +36,12 @@ const tableRoutes = {
       meta: { title: 'Quản lý nhà cung cấp' },
     },
     {
+      path: 'nha-xuat-ban',
+      component: () => import('@/views/table/QuanLyNXB'),
+      name: 'Quản lý nhà xuất bán',
+      meta: { title: 'Quản lý nhà xuất bán' },
+    },
+    {
       path: 'nhom-hang',
       component: () => import('@/views/table/QuanLyNhomHang'),
       name: 'Quản lý nhóm hàng',

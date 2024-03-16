@@ -46,7 +46,10 @@ export function uppercaseFirst(string) {
 }
 
 export function convertDateFromTimestamp(date) {
+  if (!date) {
+    return '';
+  }
   const arr_timestamp = date.split(' ');
   const tmp = new Date(arr_timestamp[0]);
-  return tmp.getDate() + '-' + (parseInt(tmp.getMonth()) + 1) + '-' + tmp.getFullYear() + ' ' + (arr_timestamp[1] ? arr_timestamp[1] : '');
+  return String(tmp.getDate()).padStart(2, '0') + '-' + String(tmp.getMonth() + 1).padStart(2, '0') + '-' + tmp.getFullYear() + ' ' + (arr_timestamp[1] ? arr_timestamp[1] : '');
 }

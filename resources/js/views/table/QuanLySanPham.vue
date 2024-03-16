@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.title" :placeholder="'Tên sản phẩm'" style="display: inline-block;width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.title" :placeholder="'Tìm tên hoặc số khung số máy'" style="display: inline-block;width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-select v-model="listQuery.month" placeholder="Chọn tháng" style="display: inline-block;width: 150px;" class="filter-item">
         <el-option :key="1" :label="'Theo tháng'" :value="1" />
         <el-option :key="0" :label="'Theo ngày'" :value="0" />
@@ -26,14 +26,24 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column :label="'Ảnh SP'" prop="id" align="center" width="150px">
-        <template slot-scope="scope">
-          <img v-if="scope.row.img" :src="getImgUrl(scope.row.img_path)" :alt="scope.row.name" width="100px" height="auto">
-        </template>
-      </el-table-column>
-      <el-table-column :label="'Tên SP'" align="center">
+      <el-table-column :label="'Tên SP'" min-width="250px" align="left">
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="'SK - SM'" width="150px" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.short_name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="'Ngày nhập'" width="150px" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.ngay_nhap | convertDateFromTimestamp }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="'NCC'" width="150px" align="left">
+        <template slot-scope="scope">
+          <span>{{ scope.row.nha_cung_cap_info.name }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="'Giá nhập'" width="120px" align="center">
@@ -51,7 +61,7 @@
           <span>{{ scope.row.so_luong_con_lai }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'Ghi chú'" width="120px" align="center">
+      <el-table-column :label="'Ghi chú'" width="120px" align="left">
         <template slot-scope="scope">
           <span>{{ scope.row.note }}</span>
         </template>
@@ -79,6 +89,9 @@
           <el-tab-pane :label="'Thông tin sản phẩm'" name="first">
             <el-form-item :label="'Tên sản phẩm'" prop="name">
               <el-input v-model="temp.name" />
+            </el-form-item>
+            <el-form-item :label="'Số khung - máy'" prop="short_name">
+              <el-input v-model="temp.short_name" />
             </el-form-item>
             <el-form-item :label="'Hãng xe'" prop="hang_xe">
               <v-select v-model="temp.hang_xe" :options="hangXe" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn hãng xe" :reduce="option => option.id" />
@@ -283,6 +296,7 @@ export default {
       pvData: [],
       rules: {
         name: [{ required: true, message: 'Vui lòng nhập tên sản phẩm!', trigger: 'input' }],
+        short_name: [{ required: true, message: 'Vui lòng nhập số khung số máy!', trigger: 'input' }],
         nha_cung_cap: [{ required: true, message: 'Vui lòng chọn nhà cung cấp!', trigger: 'change' }],
         ngay_nhap: [{ required: true, message: 'Vui lòng chọn ngày nhập!', trigger: 'change' }],
         so_luong_nhap: [{ required: true, message: 'Vui lòng nhập số lượng nhập vào!', trigger: 'input' }],

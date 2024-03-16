@@ -25,7 +25,9 @@ class SanPhamController extends BaseController
         }
         $query = SanPham::where('user_id', $currentUser->id)
         ->when(!empty($searchParams['title']), function ($q) use ($searchParams) {
-            $q->where('name', 'like', '%'.$searchParams['title'].'%');
+            $q->where(function ($sq) use ($searchParams) {
+                $sq->where('name', 'like', '%'.$searchParams['title'].'%')->orWhere('short_name', 'like', '%'.$searchParams['title'].'%');
+            });
         })
         ->when(!empty($searchParams['ncc']), function ($q) use ($searchParams) {
             $q->where('nha_cung_cap', $searchParams['ncc']);
@@ -51,7 +53,7 @@ class SanPhamController extends BaseController
             $query = $query->get();
         }
         else {
-            $query = $query->paginate($limit);
+            $query = $query->with('nhaCungCapInfo')->paginate($limit);
         }
         // dd();
         return response()->json(['data' => $query], 200);
@@ -61,6 +63,7 @@ class SanPhamController extends BaseController
         $searchParams = $request->all();
         $messages = [
             'name.required' => 'Tên sản phẩm không để trống!',
+            'short_name.required' => 'Số khung số ,máy không để trống!',
             'image.image' => 'File tải lên không ở dạng ảnh!',
             'image.mimes' => 'Ảnh không hợp lệ!',
             'image.max' => 'Kích thước ảnh phải nhỏ hơn 2048 KB!',
@@ -71,6 +74,7 @@ class SanPhamController extends BaseController
         ];
         $validator = Validator::make($searchParams, [
             'name' => 'required',
+            'short_name' => 'required',
             'image'=>'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
             'gia_ban' => 'numeric',
             'gia_nhap' => 'numeric',

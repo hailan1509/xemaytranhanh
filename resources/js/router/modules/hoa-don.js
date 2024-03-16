@@ -12,7 +12,7 @@ const hoaDonRoutes = {
   },
   children: [
     {
-      path: '/list',
+      path: 'list',
       component: () => import('@/views/table/QuanLyHoaDon'),
       name: 'Quản lý hóa đơn',
       meta: { title: 'Quản lý hóa đơn' },

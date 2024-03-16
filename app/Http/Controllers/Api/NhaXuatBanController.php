@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Laravue\Models\NhaCungCap;
+use App\Laravue\Models\NhaXuatBan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
-class NCCController extends BaseController
+class NhaXuatBanController extends BaseController
 {
     const ITEM_PER_PAGE = 15;
     //
@@ -16,10 +16,10 @@ class NCCController extends BaseController
         $currentUser = Auth::user();
         $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
         if(isset($searchParams['id'])) {
-            $query = NhaCungCap::find($searchParams['id']);
+            $query = NhaXuatBan::find($searchParams['id']);
             return response()->json(['data' => $query], 200);
         }
-        $query = NhaCungCap::where('user_id', $currentUser->id)->when(!empty($searchParams['title']), function ($q) use ($searchParams) {
+        $query = NhaXuatBan::where('user_id', $currentUser->id)->when(!empty($searchParams['title']), function ($q) use ($searchParams) {
             $q->where('name', 'like', '%'.$searchParams['title'].'%');
         });
         if (!empty($searchParams['viewSelect'])) {
@@ -37,25 +37,25 @@ class NCCController extends BaseController
         $currentUser = Auth::user();
         try {
             if ($id) {
-                $model = NhaCungCap::find($searchParams['id']);
+                $model = NhaXuatBan::find($searchParams['id']);
                 if ($model) {
                     $model->name = $request->input('name', '');
                     $model->user_id = $currentUser->id;
                     $model->phone = $request->input('phone', '');
                     $model->address = $request->input('address', '');
-                    $model->note = $request->input('note', '');
+                    $model->note = $request->input('note', '') ?  : '';
                     $model->save();
                     return response()->json(['success' => true,'message' => 'Sửa thành công!'], 200);
                 }
                 else return response()->json(['success' => false,'message' => 'Tham số không chính xác!'], 200);
             }
             else {
-                $model = new NhaCungCap();
+                $model = new NhaXuatBan();
                 $model->name = $request->input('name', '');
                 $model->user_id = $currentUser->id;
                 $model->note = $request->input('note', '');
                 $model->phone = $request->input('phone', '');
-                $model->address = $request->input('address', '');
+                $model->address = $request->input('address', '') ? : '';
                 $model->save();
                 return response()->json(['success' => true,'message' => 'Thêm thành công!'], 200);
             }
@@ -71,7 +71,7 @@ class NCCController extends BaseController
         $id = $searchParams['id'];
         try {
 
-            $model = NhaCungCap::find($id);
+            $model = NhaXuatBan::find($id);
             if ($model->user_id != $currentUser->id) {
                 return response()->json(['success' => false,'message' => 'Không đủ quyền với thao tác trên!'], 200);
             }
