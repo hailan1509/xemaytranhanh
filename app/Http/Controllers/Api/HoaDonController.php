@@ -133,6 +133,7 @@ class HoaDonController extends BaseController
         try{
             if(!empty($id)) {
                 $query = HoaDon::where('id',$id)->update(['deleted_at' => Carbon::now()]);
+                $query = ChiTietHoaDon::where('ma_hoa_don', $id)->update(['deleted_at' => Carbon::now()]);;
             }
             return response()->json(['message' => "Thành công !","success" => true]);
         }catch (\Exception $ex) {

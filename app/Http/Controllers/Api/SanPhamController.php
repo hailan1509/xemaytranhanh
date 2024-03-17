@@ -24,28 +24,31 @@ class SanPhamController extends BaseController
             return response()->json(['data' => $query], 200);
         }
         $query = SanPham::where('user_id', $currentUser->id)
-        ->when(!empty($searchParams['title']), function ($q) use ($searchParams) {
+        ->when(isset($searchParams['title']) && !empty($searchParams['title']), function ($q) use ($searchParams) {
             $q->where(function ($sq) use ($searchParams) {
                 $sq->where('name', 'like', '%'.$searchParams['title'].'%')->orWhere('short_name', 'like', '%'.$searchParams['title'].'%');
             });
         })
-        ->when(!empty($searchParams['ncc']), function ($q) use ($searchParams) {
+        ->when(isset($searchParams['ncc']) && !empty($searchParams['ncc']), function ($q) use ($searchParams) {
             $q->where('nha_cung_cap', $searchParams['ncc']);
         })
-        ->when(!empty($searchParams['hang_xe']), function ($q) use ($searchParams) {
+        ->when(isset($searchParams['hang_xe']) && !empty($searchParams['hang_xe']), function ($q) use ($searchParams) {
             $q->where('hang_xe', $searchParams['hang_xe']);
         })
-        ->when(!empty($searchParams['nhom_hang']), function ($q) use ($searchParams) {
+        ->when(isset($searchParams['nhom_hang']) && !empty($searchParams['nhom_hang']), function ($q) use ($searchParams) {
             $q->where('nhom_hang', $searchParams['nhom_hang']);
         })
-        ->when(!empty($searchParams['date']), function ($q) use ($searchParams) {
+        ->when(isset($searchParams['date']) && !empty($searchParams['date']), function ($q) use ($searchParams) {
             if (!empty(($searchParams['month']))) {
                 $arr = explode('-', $searchParams['date']);
                 $q->whereMonth('ngay_nhap', $arr[1])->whereYear('ngay_nhap', $arr[0]);
             }
             else
                 $q->where('ngay_nhap', $searchParams['date']);
+        })->when(isset($searchParams['is_inventory']) && !empty($searchParams['is_inventory']), function ($q) use ($searchParams) {
+            $q->where('so_luong_con_lai', '>', 0);
         });
+
 
         $query = $query->orderBy('ngay_nhap', 'desc');
 
@@ -57,6 +60,10 @@ class SanPhamController extends BaseController
         }
         // dd();
         return response()->json(['data' => $query], 200);
+    }
+
+    public function productSold(Request $request) {
+        
     }
 
     public function store(Request $request) {
@@ -175,7 +182,7 @@ class SanPhamController extends BaseController
             return response()->json(['data' => []], 200);
         }
         $id = $searchParams['id'];
-        $query = ChiTietHoaDon::where(['user_id' => $currentUser->id, 'ma_san_pham' => $id])->orderBy('created_at', 'desc')->with('hoaDon')->get();
+        $query = ChiTietHoaDon::where(['user_id' => $currentUser->id, 'ma_san_pham' => $id])->whereNull('deleted_at')->orderBy('created_at', 'desc')->with(['hoaDon', 'hoaDon.nxb'])->get();
         return response()->json(['data' => $query], 200);
     }
 }

@@ -6,15 +6,10 @@
         <el-option :key="1" :label="'Theo tháng'" :value="1" />
         <el-option :key="0" :label="'Theo ngày'" :value="0" />
       </el-select>
-      <v-select v-model="listQuery.hang_xe" class="el-select filter-item el-select--medium" :options="hangXe" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm hãng" :reduce="option => option.id" />
-      <v-select v-model="listQuery.nhom_hang" class="el-select filter-item el-select--medium" :options="nhomHang" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm nhóm hàng" :reduce="option => option.id" />
       <v-select v-model="listQuery.ncc" class="el-select filter-item el-select--medium" :options="nhaCungCap" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Tìm kiếm nhà cung cấp" :reduce="option => option.id" />
       <el-date-picker v-model="listQuery.date" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Xem theo ngày" style="width: 200px;" class="filter-item" />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         {{ $t('table.search') }}
-      </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
-        {{ $t('table.add') }}
       </el-button>
     </div>
 
@@ -56,7 +51,12 @@
           <span>{{ scope.row.gia_ban | toThousandFilter }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="'Còn'" width="50px" align="center">
+      <el-table-column :label="'SL nhập'" width="100px" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.so_luong_nhap }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="'SL Tồn'" width="100px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.so_luong_con_lai }}</span>
         </template>
@@ -69,13 +69,10 @@
       <el-table-column :label="$t('table.actions')" align="center" width="300px" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            {{ $t('table.edit') }}
-          </el-button>
-          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row)">
-            {{ $t('table.delete') }}
+            Chi tiết
           </el-button>
           <el-button type="success" size="mini" @click="viewHoaDon(row)">
-            Xem
+            Xem HD
           </el-button>
         </template>
       </el-table-column>
@@ -88,69 +85,53 @@
         <el-tabs v-model="activeTab" style="margin-top:15px;" type="border-card">
           <el-tab-pane :label="'Thông tin sản phẩm'" name="first">
             <el-form-item :label="'Tên sản phẩm'" prop="name">
-              <el-input v-model="temp.name" />
+              <el-input v-model="temp.name" disabled />
             </el-form-item>
             <el-form-item :label="'Số khung - máy'" prop="short_name">
-              <el-input v-model="temp.short_name" />
+              <el-input v-model="temp.short_name" disabled />
             </el-form-item>
             <el-form-item :label="'Hãng xe'" prop="hang_xe">
-              <v-select v-model="temp.hang_xe" :options="hangXe" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn hãng xe" :reduce="option => option.id" />
+              <v-select v-model="temp.hang_xe" :options="hangXe" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn hãng xe" :reduce="option => option.id" disabled />
             </el-form-item>
             <el-form-item :label="'Nhóm hàng'" prop="nhom_hang">
-              <v-select v-model="temp.nhom_hang" :options="nhomHang" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn nhóm" :reduce="option => option.id" />
+              <v-select v-model="temp.nhom_hang" :options="nhomHang" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn nhóm" :reduce="option => option.id" disabled />
             </el-form-item>
             <el-form-item :label="'Nhà cung cấp'" prop="nha_cung_cap">
-              <v-select v-model="temp.nha_cung_cap" :options="nhaCungCap" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn nhà cung cấp" :reduce="option => option.id" />
+              <v-select v-model="temp.nha_cung_cap" :options="nhaCungCap" style="display: inline-block; width: 200px" :menu-props="{ contentClass: 'filter-item' }" label="name" placeholder="Chọn nhà cung cấp" :reduce="option => option.id" disabled />
             </el-form-item>
             <el-form-item :label="'Ngày nhập'" prop="ngay_nhap">
-              <el-date-picker v-model="temp.ngay_nhap" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Chọn ngày nhập hàng" style="width: 200px;" class="filter-item" />
+              <el-date-picker v-model="temp.ngay_nhap" type="date" format="dd/MM/yyyy" value-format="yyyy-MM-dd" placeholder="Chọn ngày nhập hàng" style="width: 200px;" class="filter-item" disabled />
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane :label="'Giá - Số lượng'">
             <el-form-item :label="'Giá nhập'" prop="gia_nhap">
-              <el-input v-model="temp.gia_nhap" />
+              <el-input v-model="temp.gia_nhap" disabled />
               <div>
                 <span>{{ _convert_number_to_words(temp.gia_nhap) }}</span>
               </div>
             </el-form-item>
             <el-form-item :label="'Giá bán'" prop="gia_ban">
-              <el-input v-model="temp.gia_ban" />
+              <el-input v-model="temp.gia_ban" disabled />
               <div>
                 <span>{{ _convert_number_to_words(temp.gia_ban) }}</span>
               </div>
             </el-form-item>
             <el-form-item :label="'Số lượng nhập'" prop="so_luong_nhap">
-              <el-input v-model="temp.so_luong_nhap" />
+              <el-input v-model="temp.so_luong_nhap" disabled />
             </el-form-item>
             <el-form-item v-if="dialogStatus!=='create'" :label="'Số lượng còn lại'" prop="so_luong_con_lai">
-              <el-input v-model="temp.so_luong_con_lai" />
+              <el-input v-model="temp.so_luong_con_lai" disabled />
             </el-form-item>
 
           </el-tab-pane>
           <el-tab-pane :label="'Thêm'">
             <el-form-item :label="'Phương thức nhập'" prop="phuong_thuc_nhap">
-              <el-input v-model="temp.phuong_thuc_nhap" />
+              <el-input v-model="temp.phuong_thuc_nhap" disabled />
             </el-form-item>
             <el-form-item :label="'Ghi chú'" prop="note">
-              <el-input v-model="temp.note" />
+              <el-input v-model="temp.note" disabled />
             </el-form-item>
             <el-form-item :label="'Hình ảnh'" prop="title">
-              <el-upload
-                id="imgObject"
-                :data="additionalData"
-                :multiple="false"
-                :show-file-list="true"
-                :on-success="handleImageSuccess"
-                :before-upload="beforeUpload"
-                class="image-uploader"
-                drag
-                action="https://httpbin.org/post"
-              >
-                <i class="el-icon-upload" />
-                <div class="el-upload__text">
-                  Kéo file ảnh hoặc <em>Bấm vào đây</em>
-                </div>
-              </el-upload>
               <img v-if="imgUrl.length > 1" width="300px" height="auto" :src="imgUrl">
             </el-form-item>
 
@@ -160,9 +141,6 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">
           {{ $t('table.cancel') }}
-        </el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
-          {{ $t('table.confirm') }}
         </el-button>
       </div>
     </el-dialog>
@@ -211,10 +189,8 @@
 </template>
 
 <script>
-import { fetchList, store, del, viewHoaDon } from '@/api/san-pham';
-import { fetchList as lstHang } from '@/api/hang-xe';
+import { fetchList, viewHoaDon } from '@/api/san-pham';
 import { fetchList as lstNCC } from '@/api/ncc';
-import { fetchList as lstNhomHang } from '@/api/nhom-hang';
 import waves from '@/directive/waves'; // Waves directive
 import Pagination from '@/components/Pagination'; // Secondary package based on el-pagination
 import vSelect from 'vue-select';
@@ -267,6 +243,7 @@ export default {
         hang_xe: '',
         ncc: '',
         nhom_hang: '',
+        is_inventory: '1',
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
@@ -294,7 +271,7 @@ export default {
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
-        update: 'Sửa',
+        update: 'Xem chi tiết',
         create: 'Thêm',
       },
       dialogPvVisible: false,
@@ -321,8 +298,6 @@ export default {
     };
   },
   created() {
-    this.getHangXe();
-    this.getNhomHang();
     this.getNCC();
     this.getList();
   },
@@ -339,23 +314,8 @@ export default {
       this.listLoading = true;
       this.dialogPvVisible = true;
       const { data } = await viewHoaDon({ id: row.id });
-      console.log(data);
       this.hoaDon = data;
       this.listLoading = false;
-    },
-    beforeUpload(file) {
-      this.imagePost = file;
-    },
-    handleImageSuccess(file) {
-      this.imgUrl = file.files.file;
-    },
-    async getHangXe() {
-      const { data } = await lstHang({ limit: 1000 });
-      this.hangXe = data.data;
-    },
-    async getNhomHang() {
-      const { data } = await lstNhomHang({ limit: 1000 });
-      this.nhomHang = data.data;
     },
     async getNCC() {
       const { data } = await lstNCC({ limit: 1000 });
@@ -373,19 +333,6 @@ export default {
     handleFilter() {
       this.listQuery.page = 1;
       this.getList();
-    },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: 'Successful operation',
-        type: 'success',
-      });
-      row.status = status;
-    },
-    sortChange(data) {
-      const { prop, order } = data;
-      if (prop === 'id') {
-        this.sortByID(order);
-      }
     },
     sortByID(order) {
       if (order === 'ascending') {
@@ -415,70 +362,6 @@ export default {
         img_path: '',
       };
     },
-    handleCreate() {
-      this.resetTemp();
-      this.dialogStatus = 'create';
-      this.activeTab = 'first';
-      this.dialogFormVisible = true;
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate();
-      });
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = ''; // mock a id
-          if (this.imagePost) {
-            this.temp.image = this.imagePost;
-          }
-          var formData = new FormData();
-          for (var key in this.temp) {
-            formData.append(key, this.temp[key]);
-          }
-          store(formData).then((res) => {
-            this.getList();
-            if (res.success) {
-              this.dialogFormVisible = false;
-              this.$notify({
-                title: 'Success',
-                message: res.message,
-                type: 'success',
-                duration: 2000,
-              });
-            } else {
-              if (res[0] === 'error') {
-                let messages = '';
-                Object.values(res.message).forEach((error) => {
-                  messages += '<div><strong>' + error[0] + '</strong></div>';
-                });
-                this.$notify({
-                  title: 'Warning',
-                  dangerouslyUseHTMLString: true,
-                  message: messages,
-                  type: 'warning',
-                  duration: 7000,
-                });
-              } else {
-                this.$notify({
-                  title: 'Error',
-                  message: res.message,
-                  type: 'error',
-                  duration: 5000,
-                });
-              }
-            }
-          });
-        } else {
-          this.$notify({
-            title: 'Warning',
-            dangerouslyUseHTMLString: true,
-            message: '<b>1 số thông tin chưa đúng. Hãy nhập lại!</b>',
-            type: 'warning',
-            duration: 7000,
-          });
-        }
-      });
-    },
     handleUpdate(row) {
       this.temp = Object.assign({}, row); // copy obj
       this.temp.timestamp = new Date(this.temp.timestamp);
@@ -490,83 +373,11 @@ export default {
         this.$refs['dataForm'].clearValidate();
       });
     },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          if (this.imagePost) {
-            this.temp.image = this.imagePost;
-          }
-          var formData = new FormData();
-          for (var key in this.temp) {
-            formData.append(key, this.temp[key] ? this.temp[key] : '');
-          }
-          store(formData).then((res) => {
-            this.getList();
-            if (res.success) {
-              this.dialogFormVisible = false;
-              this.$notify({
-                title: 'Success',
-                message: res.message,
-                type: 'success',
-                duration: 2000,
-              });
-            } else {
-              if (res[0] === 'error') {
-                let messages = '';
-                Object.values(res.message).forEach((error) => {
-                  messages += '<div><strong>' + error[0] + '</strong></div>';
-                });
-                this.$notify({
-                  title: 'Warning',
-                  dangerouslyUseHTMLString: true,
-                  message: messages,
-                  type: 'warning',
-                  duration: 7000,
-                });
-              } else {
-                this.$notify({
-                  title: 'Error',
-                  message: res.message,
-                  type: 'error',
-                  duration: 5000,
-                });
-              }
-            }
-          });
-        } else {
-          this.$notify({
-            title: 'Warning',
-            dangerouslyUseHTMLString: true,
-            message: '<b>1 số thông tin chưa đúng. Hãy nhập lại!</b>',
-            type: 'warning',
-            duration: 7000,
-          });
-        }
-      });
-    },
     handleInput(value) {
       // console.log(value);
     },
     handleSelect(value) {
       // console.log(value);
-    },
-    handleDelete(row) {
-      this.$confirm('Bạn có chắc muốn xoá?', 'Cảnh báo', {
-        confirmButtonText: 'Có',
-        cancelButtonText: 'Không',
-        type: 'warning',
-      })
-        .then(async() => {
-          del({ 'id': row.id }).then((res) => {
-            this.$notify({
-              title: res.success ? 'Xong' : 'Lỗi',
-              message: res.message,
-              type: res.success ? 'success' : 'error',
-              duration: 2000,
-            });
-            this.getList();
-          });
-        });
     },
     _convert_number_to_words(number) {
       if (!number) {
