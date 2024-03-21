@@ -9,6 +9,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+
 /**
  * Class LaravueController
  *
@@ -24,5 +26,9 @@ class LaravueController extends Controller
     public function index()
     {
         return view('laravue');
+    }
+
+    public function viewGiayBienNhan(Request $request) {
+        return view('hoa_don_template');
     }
 }

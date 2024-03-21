@@ -142,4 +142,37 @@ class HoaDonController extends BaseController
         
 
     }
+
+    public function thongKeDaBan(Request $request) {
+        $searchParams = $request->all();
+        $title = $request->input('title', '');
+        $ncc = $request->input('ncc', '');
+        $date = $request->input('date', '');
+        $currentUser = Auth::user();
+        $limit = Arr::get($searchParams, 'limit', static::ITEM_PER_PAGE);
+        $query = ChiTietHoaDon::where('user_id', $currentUser->id)
+        ->whereHas('sanPham', function ($q) use ($title, $ncc) {
+            $q->when(!empty($title) || !empty($ncc), function ($sq) use ($title, $ncc) {
+                if (!empty($title)) {
+                    $sq->where('name', 'like', '%'.$title.'%')->orWhere('short_name', 'like', '%'.$title.'%');
+                }
+                if (!empty($ncc)) {
+                    $sq->where('nha_cung_cap', $ncc);
+                }
+            });
+        })
+        ->whereHas('hoaDon', function ($q) use ($searchParams, $date) {
+            $q->when(!empty($date), function ($sq) use ($searchParams) {
+                if (!empty(($searchParams['month']))) {
+                    $arr = explode('-', $searchParams['date']);
+                    $sq->whereMonth('ngay_ban', $arr[1])->whereYear('ngay_ban', $arr[0]);
+                }
+                else
+                    $sq->where('ngay_ban', $searchParams['date']);
+            });
+        })
+        ->with(['sanPham', 'hoaDon', 'sanPham.nhaCungCapInfo'])->paginate($limit);
+        // dd($query, $limit);
+        return response()->json(['data' => $query], 200);
+    }
 }

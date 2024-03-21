@@ -23,3 +23,11 @@ export function del(data) {
     data,
   });
 }
+
+export function thongKeDaBan(query) {
+  return request({
+    url: '/hoa-don/da-ban',
+    method: 'get',
+    params: query,
+  });
+}

@@ -60,6 +60,7 @@ Route::namespace('Api')->group(function() {
     Route::get('hoa-don/list', 'HoaDonController@index');
     Route::post('hoa-don/store', 'HoaDonController@store');
     Route::post('hoa-don/delete', 'HoaDonController@delete');
+    Route::get('hoa-don/da-ban', 'HoaDonController@thongKeDaBan');
     Route::get('user/getInfo', 'UserController@getInfo');
     Route::post('user/editProfile', 'UserController@editProfile');
     Route::get('dashboard/get', 'DashboardController@index');
