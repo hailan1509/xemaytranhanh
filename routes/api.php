@@ -58,8 +58,10 @@ Route::namespace('Api')->group(function() {
     Route::post('san-pham/delete', 'SanPhamController@delete');
     Route::get('san-pham/viewHoaDon', 'SanPhamController@viewHoaDon');
     Route::get('hoa-don/list', 'HoaDonController@index');
+    Route::get('hoa-don/chi-tiet', 'HoaDonController@chiTiet');
     Route::post('hoa-don/store', 'HoaDonController@store');
     Route::post('hoa-don/delete', 'HoaDonController@delete');
+    Route::post('hoa-don/save-file', 'HoaDonController@saveFile');
     Route::get('hoa-don/da-ban', 'HoaDonController@thongKeDaBan');
     Route::get('user/getInfo', 'UserController@getInfo');
     Route::post('user/editProfile', 'UserController@editProfile');

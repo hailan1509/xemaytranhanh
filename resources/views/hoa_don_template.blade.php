@@ -6,10 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Giấy biên nhận</title>
+    
+    
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         * {
             font-family: 'Times New Roman';
@@ -29,7 +37,7 @@
             width: 150px !important;
         }
         .only-print {
-            display: none !important;
+            display: none;
         }
         input.print-hidden, .print-hidden input[type="text"] {
             border: 1px dotted !important;
@@ -37,12 +45,18 @@
             width: 100%;
         }
         .print-hidden {
-            display: inline !important;;
+            display: inline;
+        }
+        .ml-10 {
+            margin-left: 10px;
         }
     </style>
-</head>
-<body>
    <div class="section">
+    <div class="row ">
+        <div class="col-md-12">
+            <button class="btn btn-success ml-10" onclick="saveFile()">Lưu lại</button>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-12 text-center">
             <span class="h2 bold" id="ten_cua_hang"></span><br>
@@ -181,9 +195,16 @@
         .print-hidden {
             display: none !important;
         }
+        * {
+            font-size: 17px !important;
+        }
+        button {
+            display: none !important;
+        }
     }
 </style>
 <script>
+    const { jsPDF } = window.jspdf;
     var banks = [
       { value: 'ICB', name: '(970415) VietinBank' }, { value: 'VCB', name: '(970436) Vietcombank' }, { value: 'BIDV', name: '(970418) BIDV' }, { value: 'VBA', name: '(970405) Agribank' }, { value: 'OCB', name: '(970448) OCB' }, { value: 'MB', name: '(970422) MBBank' }, { value: 'TCB', name: '(970407) Techcombank' }, { value: 'ACB', name: '(970416) ACB' }, { value: 'VPB', name: '(970432) VPBank' }, { value: 'TPB', name: '(970423) TPBank' }, { value: 'STB', name: '(970403) Sacombank' }, { value: 'HDB', name: '(970437) HDBank' }, { value: 'VCCB', name: '(970454) VietCapitalBank' }, { value: 'SCB', name: '(970429) SCB' }, { value: 'VIB', name: '(970441) VIB' }, { value: 'SHB', name: '(970443) SHB' }, { value: 'EIB', name: '(970431) Eximbank' }, { value: 'MSB', name: '(970426) MSB' }, { value: 'CAKE', name: '(546034) CAKE' }, { value: 'Ubank', name: '(546035) Ubank' }, { value: 'TIMO', name: '(963388) Timo' }, { value: 'VTLMONEY', name: '(971005) ViettelMoney' }, { value: 'VNPTMONEY', name: '(971011) VNPTMoney' }, { value: 'SGICB', name: '(970400) SaigonBank' }, { value: 'BAB', name: '(970409) BacABank' }, { value: 'PVCB', name: '(970412) PVcomBank' }, { value: 'Oceanbank', name: '(970414) Oceanbank' }, { value: 'NCB', name: '(970419) NCB' }, { value: 'SHBVN', name: '(970424) ShinhanBank' }, { value: 'ABB', name: '(970425) ABBANK' }, { value: 'VAB', name: '(970427) VietABank' }, { value: 'NAB', name: '(970428) NamABank' }, { value: 'PGB', name: '(970430) PGBank' }, { value: 'VIETBANK', name: '(970433) VietBank' }, { value: 'BVB', name: '(970438) BaoVietBank' }, { value: 'SEAB', name: '(970440) SeABank' }, { value: 'COOPBANK', name: '(970446) COOPBANK' }, { value: 'LPB', name: '(970449) LienVietPostBank' }, { value: 'KLB', name: '(970452) KienLongBank' }, { value: 'KBank', name: '(668888) KBank' }, { value: 'KBHN', name: '(970462) KookminHN' }, { value: 'KEBHANAHCM', name: '(970466) KEBHanaHCM' }, { value: 'KEBHANAHN', name: '(970467) KEBHANAHN' }, { value: 'MAFC', name: '(977777) MAFC' }, { value: 'CITIBANK', name: '(533948) Citibank' }, { value: 'KBHCM', name: '(970463) KookminHCM' }, { value: 'VBSP', name: '(999888) VBSP' }, { value: 'WVN', name: '(970457) Woori' }, { value: 'VRB', name: '(970421) VRB' }, { value: 'UOB', name: '(970458) UnitedOverseas' }, { value: 'SCVN', name: '(970410) StandardChartered' }, { value: 'PBVN', name: '(970439) PublicBank' }, { value: 'NHB HN', name: '(801011) Nonghyup' }, { value: 'IVB', name: '(970434) IndovinaBank' }, { value: 'IBK - HCM', name: '(970456) IBKHCM' }, { value: 'IBK - HN', name: '(970455) IBKHN' }, { value: 'HSBC', name: '(458761) HSBC' }, { value: 'HLBVN', name: '(970442) HongLeong' }, { value: 'GPB', name: '(970408) GPBank' }, { value: 'DOB', name: '(970406) DongABank' }, { value: 'DBS', name: '(796500) DBSBank' }, { value: 'CIMB', name: '(422589) CIMB' }, { value: 'CBB', name: '(970444) CBBank' },
     ];
@@ -201,6 +222,11 @@
 
             }
         });
+        var urlParams = new URLSearchParams(window.location.search);
+        var id = urlParams.get('id');
+        $.get('api/hoa-don/chi-tiet?id=' + id, function (resp) {
+
+        })
     });
     function changeInput(e, idSpan) {
         $("#"+ idSpan).html(e.value);
@@ -336,6 +362,85 @@
         const config = { style: 'currency', currency: 'VND', maximumFractionDigits: 9}
         const formated = new Intl.NumberFormat('vi-VN', config).format(money);
         return formated;
+    }
+    function saveFile() {
+        document.querySelectorAll('button').forEach(function(button) {
+            button.style.display = 'none'; // Ẩn button
+        });
+
+        document.querySelectorAll('.print-hidden').forEach(function(ele) {
+            ele.style.display = 'none';
+            console.log(ele.style.display);
+        });
+        document.querySelectorAll('.only-print').forEach(function(ele) {
+            ele.style.display = 'inline';
+        });
+
+        // Tạo một instance của jsPDF
+        var doc = new jsPDF();
+
+        // Lấy nội dung HTML của trang web
+        var htmlContent = document.documentElement.outerHTML;
+        console.log(document.body);
+
+        html2canvas(document.documentElement).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'pt', 'a4');
+            const imgWidth = pdf.internal.pageSize.getWidth();
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            const pdfBlob = pdf.output('blob');
+
+            // Tạo URL Blob từ Blob đã tạo
+            const blobUrl = URL.createObjectURL(pdfBlob);
+            const formData = new FormData();
+            formData.append('file', pdfBlob);
+            // Make a POST request to the API
+            fetch('api/hoa-don/save-file', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                document.querySelectorAll('.print-hidden').forEach(function(ele) {
+                    ele.style.display = 'none';
+                });
+                document.querySelectorAll('.only-print').forEach(function(ele) {
+                    ele.style.display = 'inline';
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Thêm nội dung HTML vào tệp PDF
+        // doc.html(htmlContent, {
+        //     callback: function(doc) {
+        //         // Lấy dữ liệu của tệp PDF dưới dạng dữ liệu URL
+        //         // var pdfDataUri = doc.output('blob');
+        //         doc.save('abc.pdf');
+        //         var blobPDF =  new Blob([ doc.output() ], { type : 'application/pdf'});
+        //         var blobUrl = URL.createObjectURL(blobPDF);  //<--- THE ERROR APPEARS HERE
+
+        //         window.open(blobUrl); 
+        //         // Gửi tệp PDF lên API bằng axios hoặc thực hiện các thao tác khác tùy thuộc vào yêu cầu của bạn
+        //         axios.post('api/hoa-don/save-file', { file: pdfDataUri })
+        //             .then(function(response) {
+        //                 // Xử lý phản hồi từ API hoặc thực hiện các thao tác khác tùy thuộc vào yêu cầu của bạn
+        //                 console.log('PDF đã được gửi thành công.');
+        //                 document.querySelectorAll('.print-hidden').forEach(function(ele) {
+        //                     ele.style.display = 'none';
+        //                 });
+        //                 document.querySelectorAll('.only-print').forEach(function(ele) {
+        //                     ele.style.display = 'inline';
+        //                 });
+        //             })
+        //             .catch(function(error) {
+        //                 // Xử lý lỗi nếu có hoặc thực hiện các thao tác khác tùy thuộc vào yêu cầu của bạn
+        //                 console.error('Đã xảy ra lỗi khi gửi PDF:', error);
+        //             });
+        //     }
+        // });
     }
 </script>
 </html>

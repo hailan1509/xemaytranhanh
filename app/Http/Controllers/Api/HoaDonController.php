@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Validator;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\File;
 
 /**
  * Class UserController
@@ -174,5 +175,40 @@ class HoaDonController extends BaseController
         ->with(['sanPham', 'hoaDon', 'sanPham.nhaCungCapInfo'])->paginate($limit);
         // dd($query, $limit);
         return response()->json(['data' => $query], 200);
+    }
+
+    public function saveFile(Request $request) {
+        $currentUser = Auth::user();
+        $id = $request->get('id', '');
+        $file = $request->file('file');
+        // $model = HoaDon::find($id);
+        if (empty($file)) {
+            return response()->json(['message' => 'Tham số không đầy đủ','success' => false]);
+        }
+        try {
+            $fileName = '_'.time().'.pdf';
+            $path = public_path().'/files'.'/' . $currentUser->id .'/abc' ;
+            if (!File::exists($path)) {
+                // Nếu thư mục abc chưa tồn tại, thêm mới nó
+                File::makeDirectory($path, $mode = 0755, $recursive = true);
+            }
+            $file->move($path, $fileName);
+
+            // $model->file = $fileName;
+            // $model->save();
+
+        } catch (\Exception $e) {
+            dd($e);
+            return response()->json(['message' => "Đã có lỗi xảy ra, vui lòng thử lại!","success" => false]);
+        }
+
+        return response()->json(['message' => "Thành công!","success" => true]);
+    }
+
+    public function chiTiet(Request $request) {
+        $id = $request->input('id', '');
+        $currentUser = Auth::user();
+        $model = HoaDon::where(['id' => $id, 'user_id' => $currentUser->id])->with(['chiTiet', 'chiTiet.sanPham'])->first();
+        return response()->json(['data' => $model,"success" => true]);
     }
 }
