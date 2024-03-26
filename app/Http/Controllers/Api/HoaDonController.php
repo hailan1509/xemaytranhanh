@@ -178,28 +178,26 @@ class HoaDonController extends BaseController
     }
 
     public function saveFile(Request $request) {
-        dd(1);
         $currentUser = Auth::user();
         $id = $request->get('id', '');
         $file = $request->file('file');
-        // $model = HoaDon::find($id);
-        if (empty($file)) {
+        $model = HoaDon::where(['id' => $id, 'user' => $currentUser->id])->first();
+        if (empty($file) || empty($model)) {
             return response()->json(['message' => 'Tham số không đầy đủ','success' => false]);
         }
         try {
-            $fileName = '_'.time().'.pdf';
-            $path = public_path().'/files'.'/' . $currentUser->id .'/abc' ;
+            $fileName = $model->ngay_ban . '_' .time() . '.pdf';
+            $path = public_path().'/files'.'/' . $currentUser->id ;
             if (!File::exists($path)) {
                 // Nếu thư mục abc chưa tồn tại, thêm mới nó
                 File::makeDirectory($path, $mode = 0755, $recursive = true);
             }
             $file->move($path, $fileName);
 
-            // $model->file = $fileName;
-            // $model->save();
+            $model->file = $fileName;
+            $model->save();
 
         } catch (\Exception $e) {
-            dd($e);
             return response()->json(['message' => "Đã có lỗi xảy ra, vui lòng thử lại!","success" => false]);
         }
 

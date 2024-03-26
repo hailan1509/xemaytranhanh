@@ -21,7 +21,7 @@
     <style>
         * {
             font-family: 'Times New Roman';
-            font-size: 14px;
+            font-size: 17px;
         }
         .bold {
             font-weight: bold !important;
@@ -29,12 +29,16 @@
         .section {
             margin-left: 10px !important;
             margin-right: 10px !important;
+            padding: 0px 75px;
         }
         .text-left {
             text-align: left !important;
         }
         .w150 {
             width: 150px !important;
+        }
+        .w200 {
+            width: 200px !important;
         }
         .only-print {
             display: none;
@@ -119,7 +123,7 @@
                 <span id="con_thieu" class="only-print"></span></span>
         </div>
         <div class="col-md-12 col-sm-12">
-            <span class=" mr0">Hẹn lấy giấy tờ (đăng ký) <input type="text" class="print-hidden w150" onchange="changeInput(this, 'ngay_hen')" value="ngày .... tháng .... năm ....    "> <span class="only-print" id="ngay_hen">ngày .... tháng .... năm .... &nbsp;&nbsp;</span> thanh toán hết số tiền còn lại. Nếu quý khách không đúng hẹn, cửa hàng tính lãi suất 2%/ngày theo thoả thuận.</span>
+            <span class=" mr0">Hẹn lấy giấy tờ (đăng ký) <input type="text" class="print-hidden w200" onchange="changeInput(this, 'ngay_hen')" value="ngày .... tháng .... năm ....    "> <span class="only-print" id="ngay_hen">ngày .... tháng .... năm .... &nbsp;&nbsp;</span> thanh toán hết số tiền còn lại. Nếu quý khách không đúng hẹn, cửa hàng tính lãi suất 2%/ngày theo thoả thuận.</span>
         </div>
         <div class="col-md-12">
             <span><b><u>Quý khách lưu ý: </u></b> Trước khi bàn giao xe, quý khách vui lòng kiểm tra lại thông tin. Nếu sau này có gì sai sót cửa hàng không chịu trách nhiệm!</span>
@@ -130,7 +134,7 @@
                 <i><input class="print-hidden w150" oninput="changeInput(this, 'location')" type="text" value="Hải Dương,"><span id="location" class="only-print">Hải Dương,</span></i>
             </span>
             <span>
-                <input class="print-hidden w150" placeholder="ngày ... tháng ... năm ..." oninput="changeInput(this, 'sig_date')" type="text" value="ngày .... tháng .... năm .... "><span id="sig_date" class="only-print">ngày .... tháng .... năm .... </span>
+                <input class="print-hidden w200" placeholder="ngày ... tháng ... năm ..." oninput="changeInput(this, 'sig_date')" type="text" value="ngày .... tháng .... năm .... "><span id="sig_date" class="only-print">ngày .... tháng .... năm .... </span>
             </span>
         </div>
         <div class="col-md-6 col-sm-6 text-center"><span><b>ĐẠI DIỆN BÊN MUA</b></span></div>
@@ -200,6 +204,10 @@
         }
         button {
             display: none !important;
+        }
+        .section {
+            margin: 0px 0px !important;
+            padding: 0;
         }
     }
 </style>
@@ -390,6 +398,7 @@
         document.querySelectorAll('.only-print').forEach(function(ele) {
             ele.style.display = 'inline';
         });
+        var section =  document.querySelector('.section');
 
         // Tạo một instance của jsPDF
         var doc = new jsPDF();
@@ -417,47 +426,20 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    document.querySelectorAll('.print-hidden').forEach(function(ele) {
-                        ele.style.display = 'none';
-                    });
-                    document.querySelectorAll('.only-print').forEach(function(ele) {
-                        ele.style.display = 'inline';
-                    });
+                    if (response.success) {
+                        document.querySelectorAll('.print-hidden').forEach(function(ele) {
+                            ele.style.display = 'inline';
+                        });
+                        document.querySelectorAll('.only-print').forEach(function(ele) {
+                            ele.style.display = 'none';
+                        });
+                    }
+                    alert(response.message);
                 },
                 error: function(xhr, status, error) {
-                    console.error('Failed to send PDF:', error);
                 }
             });
         });
-
-        // Thêm nội dung HTML vào tệp PDF
-        // doc.html(htmlContent, {
-        //     callback: function(doc) {
-        //         // Lấy dữ liệu của tệp PDF dưới dạng dữ liệu URL
-        //         // var pdfDataUri = doc.output('blob');
-        //         doc.save('abc.pdf');
-        //         var blobPDF =  new Blob([ doc.output() ], { type : 'application/pdf'});
-        //         var blobUrl = URL.createObjectURL(blobPDF);  //<--- THE ERROR APPEARS HERE
-
-        //         window.open(blobUrl); 
-        //         // Gửi tệp PDF lên API bằng axios hoặc thực hiện các thao tác khác tùy thuộc vào yêu cầu của bạn
-        //         axios.post('api/hoa-don/save-file', { file: pdfDataUri })
-        //             .then(function(response) {
-        //                 // Xử lý phản hồi từ API hoặc thực hiện các thao tác khác tùy thuộc vào yêu cầu của bạn
-        //                 console.log('PDF đã được gửi thành công.');
-        //                 document.querySelectorAll('.print-hidden').forEach(function(ele) {
-        //                     ele.style.display = 'none';
-        //                 });
-        //                 document.querySelectorAll('.only-print').forEach(function(ele) {
-        //                     ele.style.display = 'inline';
-        //                 });
-        //             })
-        //             .catch(function(error) {
-        //                 // Xử lý lỗi nếu có hoặc thực hiện các thao tác khác tùy thuộc vào yêu cầu của bạn
-        //                 console.error('Đã xảy ra lỗi khi gửi PDF:', error);
-        //             });
-        //     }
-        // });
     }
 </script>
 </html>

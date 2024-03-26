@@ -72,8 +72,11 @@
       </el-table-column>
       <el-table-column :label="$t('table.actions')" align="center" width="200px" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <el-button size="mini" type="success" @click="handleView(row)">
-            Xem
+          <el-button v-if="row.file" size="mini" type="success" @click="handleView(row)">
+            Xem GBN
+          </el-button>
+          <el-button v-if="!row.file" size="mini" type="success" @click="handleCreateGBN(row)">
+            Viết GBN
           </el-button>
           <el-button size="mini" type="danger" @click="handleDelete(row)">
             {{ $t('table.delete') }}
@@ -346,13 +349,14 @@ export default {
       return `${window.location.origin}/${imgPath.replace(/\\/g, '/').split('public/')[1]}`;
     },
     handleView(row) {
-      if (!this.listQuery.type) {
-        this.dialogFormVisible = true;
-      } else {
-        this.dialogPvVisibleHD = true;
-        this.form = { ...this.form, ...row };
-      }
-      this.chiTiet = row.chi_tiet;
+      // if (!this.listQuery.type) {
+      //   this.dialogFormVisible = true;
+      // } else {
+      //   this.dialogPvVisibleHD = true;
+      //   this.form = { ...this.form, ...row };
+      // }
+      // this.chiTiet = row.chi_tiet;
+      window.open('files/' + this.user.id + '/' + row.file);
     },
     beforeUpload(file) {
       this.imagePost = file;
@@ -406,7 +410,8 @@ export default {
       }
       this.handleFilter();
     },
-    updateData() {
+    handleCreateGBN(row) {
+      window.location.href = 'giay-bien-nhan?id=' + row.id;
     },
     handleInput(value) {
       // console.log(value);
