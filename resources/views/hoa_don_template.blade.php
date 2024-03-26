@@ -69,19 +69,19 @@
             <span><b>Sau khi 2 bên thoả thuận mua, bán xe xong cửa hàng chúng tôi nhất trí:</b></span>
         </div>
         <div class="col-md-6 col-sm-6">
-            <span class="text-left">Bán cho ông(bà): <input class="print-hidden" onchange="changeInput(this, 'ten_khach_hang')" type="text" placeholder="Nhập tên khách hàng">
+            <span class="text-left">Bán cho ông(bà): <input id="ip_ten_khach_hang" class="print-hidden" onchange="changeInput(this, 'ten_khach_hang')" type="text" placeholder="Nhập tên khách hàng">
                 <span id="ten_khach_hang" class="only-print"></span></span>
         </div>
         <div class="col-md-6 col-sm-6">
-            <span class=" mr0">Điện thoại: <input type="text" class="print-hidden" onchange="changeInput(this, 'so_dien_thoai')"  placeholder="Nhập số điện thoại">
+            <span class=" mr0">Điện thoại: <input id="ip_so_dien_thoai" type="text" class="print-hidden" onchange="changeInput(this, 'so_dien_thoai')"  placeholder="Nhập số điện thoại">
                 <span id="so_dien_thoai" class="only-print"></span></span>
         </div>
         <div class="col-md-12 col-sm-12">
-            <span class="text-left">Địa chỉ: <input type="text" class="print-hidden" onchange="changeInput(this, 'dia_chi')"  placeholder="Nhập địa chỉ">
-                <span id="dia_chi" class="only-print"></span></span>
+            <span class="text-left">Địa chỉ: <input id="ip_address" type="text" class="print-hidden" onchange="changeInput(this, 'address')"  placeholder="Nhập địa chỉ">
+                <span id="address" class="only-print"></span></span>
         </div>
         <div class="col-md-6 col-sm-6">
-            <span class=" mr0">Nhãn hiệu xe: <input type="text" class="print-hidden" onchange="changeInput(this, 'nhan_xe')"  placeholder="Nhập nhãn hiệu xe">
+            <span class=" mr0">Nhãn hiệu xe: <input id="ip_nhan_xe" type="text" class="print-hidden" onchange="changeInput(this, 'nhan_xe')"  placeholder="Nhập nhãn hiệu xe">
                 <span id="nhan_xe" class="only-print"></span></span>
         </div>
         <div class="col-md-6 col-sm-6">
@@ -89,7 +89,7 @@
                 <span id="mau_son" class="only-print"></span></span>
         </div>
         <div class="col-md-6 col-sm-6">
-            <span class=" mr0">Số khung - Số máy: <input type="text" class="print-hidden" onchange="changeInput(this, 'sk_sm')"  placeholder="Nhập số khung số máy">
+            <span class=" mr0">Số khung - Số máy: <input id="ip_sk_sm" type="text" class="print-hidden" onchange="changeInput(this, 'sk_sm')"  placeholder="Nhập số khung số máy">
                 <span id="sk_sm" class="only-print"></span></span>
         </div>
         <div class="col-md-6 col-sm-6">
@@ -119,7 +119,7 @@
                 <span id="con_thieu" class="only-print"></span></span>
         </div>
         <div class="col-md-12 col-sm-12">
-            <span class=" mr0">Hẹn lấy giấy tờ(đăng ký) ngày <input type="text" class="print-hidden w150" onchange="changeInput(this, 'ngay_hen')"> <span class="only-print" id="ngay_hen"></span> thanh toán hết số tiền còn lại. Nếu quý khách không đúng hẹn, cửa hàng tính lãi suất 2%/ngày theo thoả thuận.</span>
+            <span class=" mr0">Hẹn lấy giấy tờ (đăng ký) <input type="text" class="print-hidden w150" onchange="changeInput(this, 'ngay_hen')" value="ngày .... tháng .... năm ....    "> <span class="only-print" id="ngay_hen">ngày .... tháng .... năm .... &nbsp;&nbsp;</span> thanh toán hết số tiền còn lại. Nếu quý khách không đúng hẹn, cửa hàng tính lãi suất 2%/ngày theo thoả thuận.</span>
         </div>
         <div class="col-md-12">
             <span><b><u>Quý khách lưu ý: </u></b> Trước khi bàn giao xe, quý khách vui lòng kiểm tra lại thông tin. Nếu sau này có gì sai sót cửa hàng không chịu trách nhiệm!</span>
@@ -130,7 +130,7 @@
                 <i><input class="print-hidden w150" oninput="changeInput(this, 'location')" type="text" value="Hải Dương,"><span id="location" class="only-print">Hải Dương,</span></i>
             </span>
             <span>
-                <input class="print-hidden w150" placeholder="ngày ... tháng ... năm ..." oninput="changeInput(this, 'sig_date')" type="text" value="ngày ... tháng ... năm ..."><span id="sig_date" class="only-print">ngày ... tháng ... năm ...</span>
+                <input class="print-hidden w150" placeholder="ngày ... tháng ... năm ..." oninput="changeInput(this, 'sig_date')" type="text" value="ngày .... tháng .... năm .... "><span id="sig_date" class="only-print">ngày .... tháng .... năm .... </span>
             </span>
         </div>
         <div class="col-md-6 col-sm-6 text-center"><span><b>ĐẠI DIỆN BÊN MUA</b></span></div>
@@ -225,6 +225,23 @@
         var urlParams = new URLSearchParams(window.location.search);
         var id = urlParams.get('id');
         $.get('api/hoa-don/chi-tiet?id=' + id, function (resp) {
+            const data = resp.data;
+            $('#ip_ten_khach_hang').val(data.ten_khach_hang);
+            $('#ten_khach_hang').html(data.ten_khach_hang);
+            $('#ip_so_dien_thoai').val(data.sdt);
+            $('#so_dien_thoai').html(data.sdt);
+            $('#ip_address').val(data.dia_chi);
+            $('#address').html(data.dia_chi);
+            if (data.chi_tiet.length > 0) {
+                const infoSP = data.chi_tiet[0];
+                $('#ip_nhan_xe').val(infoSP.san_pham.name);
+                $('#nhan_xe').html(infoSP.san_pham.name);
+                $('#ip_sk_sm').val(infoSP.san_pham.short_name);
+                $('#sk_sm').html(infoSP.san_pham.short_name);
+                $('#ip_gia_ban').val(infoSP.gia_ban);
+                $('#gia_ban').html(formatMoney(infoSP.gia_ban));
+                $("#str_gia_ban").html(_convert_number_to_words(infoSP.gia_ban));
+            }
 
         })
     });
@@ -233,7 +250,6 @@
     }
     function changeInputGia(e, idSpan, hasStrMoney = true) {
         $("#"+ idSpan).html(formatMoney(e.value));
-        console.log($("#ip_gia_ban").val().toString().length);
         if(hasStrMoney) {
             $("#str_"+ idSpan).html(_convert_number_to_words(e.value));
             if ($("#ip_gia_ban").val().toString().length > 0 && $("#ip_da_thanh_toan").val().toString().length > 0 ) {
@@ -370,7 +386,6 @@
 
         document.querySelectorAll('.print-hidden').forEach(function(ele) {
             ele.style.display = 'none';
-            console.log(ele.style.display);
         });
         document.querySelectorAll('.only-print').forEach(function(ele) {
             ele.style.display = 'inline';
@@ -381,7 +396,6 @@
 
         // Lấy nội dung HTML của trang web
         var htmlContent = document.documentElement.outerHTML;
-        console.log(document.body);
 
         html2canvas(document.documentElement).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
@@ -395,21 +409,24 @@
             const blobUrl = URL.createObjectURL(pdfBlob);
             const formData = new FormData();
             formData.append('file', pdfBlob);
-            // Make a POST request to the API
-            fetch('api/hoa-don/save-file', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                document.querySelectorAll('.print-hidden').forEach(function(ele) {
-                    ele.style.display = 'none';
-                });
-                document.querySelectorAll('.only-print').forEach(function(ele) {
-                    ele.style.display = 'inline';
-                });
-            })
-            .catch(error => {
-                console.error('Error:', error);
+
+            $.ajax({
+                url: 'api/hoa-don/save-file',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    document.querySelectorAll('.print-hidden').forEach(function(ele) {
+                        ele.style.display = 'none';
+                    });
+                    document.querySelectorAll('.only-print').forEach(function(ele) {
+                        ele.style.display = 'inline';
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Failed to send PDF:', error);
+                }
             });
         });
 

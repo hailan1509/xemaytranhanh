@@ -178,6 +178,7 @@ class HoaDonController extends BaseController
     }
 
     public function saveFile(Request $request) {
+        dd(1);
         $currentUser = Auth::user();
         $id = $request->get('id', '');
         $file = $request->file('file');
