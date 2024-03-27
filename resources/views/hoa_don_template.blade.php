@@ -54,142 +54,172 @@
         .ml-10 {
             margin-left: 10px;
         }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            display: none; /* Ẩn ban đầu */
+        }
+
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 8px solid #f3f3f3; /* Xoay nền */
+            border-top: 8px solid #3498db; /* Màu chính */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite; /* Hiệu ứng xoay */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
-   <div class="section">
-    <div class="row ">
-        <div class="col-md-12">
-            <button class="btn btn-success ml-10" onclick="saveFile()">Lưu lại</button>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    <div class="section">
+        <div class="row ">
+            <div class="col-md-12">
+                <button class="btn btn-success ml-10" onclick="saveFile()">Lưu lại</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <span class="h2 bold" id="ten_cua_hang"></span><br>
+                <span class="h3" id="dia_chi">Đ/c: </span><br>
+                <span class="h3" id="sdt">ĐT: </span><br>
+                <span class="h3" id="ngan_hang">Ngân hàng </span><br>
+                <span class="h2 bold">GIẤY BIÊN NHẬN BÁN HÀNG</span>
+            </div>
+            <div class="col-md-12">
+                <span><b>Sau khi 2 bên thoả thuận mua, bán xe xong cửa hàng chúng tôi nhất trí:</b></span>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <span class="text-left">Bán cho ông(bà): <input id="ip_ten_khach_hang" class="print-hidden" onchange="changeInput(this, 'ten_khach_hang')" type="text" placeholder="Nhập tên khách hàng">
+                    <span id="ten_khach_hang" class="only-print"></span></span>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <span class=" mr0">Điện thoại: <input id="ip_so_dien_thoai" type="text" class="print-hidden" onchange="changeInput(this, 'so_dien_thoai')"  placeholder="Nhập số điện thoại">
+                    <span id="so_dien_thoai" class="only-print"></span></span>
+            </div>
+            <div class="col-md-12 col-sm-12">
+                <span class="text-left">Địa chỉ: <input id="ip_address" type="text" class="print-hidden" onchange="changeInput(this, 'address')"  placeholder="Nhập địa chỉ">
+                    <span id="address" class="only-print"></span></span>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <span class=" mr0">Nhãn hiệu xe: <input id="ip_nhan_xe" type="text" class="print-hidden" onchange="changeInput(this, 'nhan_xe')"  placeholder="Nhập nhãn hiệu xe">
+                    <span id="nhan_xe" class="only-print"></span></span>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <span class="text-left">Màu sơn: <input type="text" class="print-hidden" onchange="changeInput(this, 'mau_son')"  placeholder="Nhập màu sơn">
+                    <span id="mau_son" class="only-print"></span></span>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <span class=" mr0">Số khung - Số máy: <input id="ip_sk_sm" type="text" class="print-hidden" onchange="changeInput(this, 'sk_sm')"  placeholder="Nhập số khung số máy">
+                    <span id="sk_sm" class="only-print"></span></span>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <span class="text-left">Biển số: <input type="text" class="print-hidden" onchange="changeInput(this, 'bien_so')"  placeholder="Nhập biển số">
+                    <span id="bien_so" class="only-print"></span></span>
+            </div>
+            <div class="col-md-12 col-sm-12">
+                <span class=" mr0">Đăng ký: <input type="text" class="print-hidden" onchange="changeInput(this, 'dang_ky')"  placeholder="Nhập đăng ký">
+                    <span id="dang_ky" class="only-print"></span></span>
+            </div>
+            <div class="col-md-12 col-sm-12">
+                <span class=" mr0">Giá bán: <input type="text" id="ip_gia_ban" class="print-hidden" oninput="changeInputGia(this, 'gia_ban')"  placeholder="Nhập giá bán">
+                    <span id="gia_ban" class="only-print"></span></span>
+            </div>
+            <div class="col-md-12 col-sm-12">
+                <span class=" mr0">(Bằng chữ): <span id="str_gia_ban"></span></span>
+            </div>
+            <div class="col-md-12 col-sm-12">
+                <span class=" mr0">Đã thanh toán: <input type="text" id="ip_da_thanh_toan" class="print-hidden" oninput="changeInputGia(this, 'da_thanh_toan')"  placeholder="Nhập số tiền đã thanh toán">
+                    <span id="da_thanh_toan" class="only-print"></span></span>
+            </div>
+            <div class="col-md-12 col-sm-12">
+                <span class=" mr0">(Bằng chữ): <span id="str_da_thanh_toan"></span></span>
+            </div>
+            <div class="col-md-12 col-sm-12">
+                <span class=" mr0">Còn thiếu: <input id="ip_con_thieu" type="text" class="print-hidden" onchange="changeInputGia(this, 'con_thieu', false)"  placeholder="Nhập số tiền còn thiếu">
+                    <span id="con_thieu" class="only-print"></span></span>
+            </div>
+            <div class="col-md-12 col-sm-12">
+                <span class=" mr0">Hẹn lấy giấy tờ (đăng ký) <input type="text" class="print-hidden w200" onchange="changeInput(this, 'ngay_hen')" value="ngày .... tháng .... năm ....    "> <span class="only-print" id="ngay_hen">ngày .... tháng .... năm .... &nbsp;&nbsp;</span> thanh toán hết số tiền còn lại. Nếu quý khách không đúng hẹn, cửa hàng tính lãi suất 2%/ngày theo thoả thuận.</span>
+            </div>
+            <div class="col-md-12">
+                <span><b><u>Quý khách lưu ý: </u></b> Trước khi bàn giao xe, quý khách vui lòng kiểm tra lại thông tin. Nếu sau này có gì sai sót cửa hàng không chịu trách nhiệm!</span>
+            </div>
+            <div class="col-md-6 col-sm-6"></div>
+            <div class="col-md-6 col-sm-6 text-center">
+                <span>
+                    <i><input class="print-hidden w150" oninput="changeInput(this, 'location')" type="text" value="Hải Dương,"><span id="location" class="only-print">Hải Dương,</span></i>
+                </span>
+                <span>
+                    <input class="print-hidden w200" placeholder="ngày ... tháng ... năm ..." oninput="changeInput(this, 'sig_date')" type="text" value="ngày .... tháng .... năm .... "><span id="sig_date" class="only-print">ngày .... tháng .... năm .... </span>
+                </span>
+            </div>
+            <div class="col-md-6 col-sm-6 text-center"><span><b>ĐẠI DIỆN BÊN MUA</b></span></div>
+            <div class="col-md-6 col-sm-6 text-center"><span><b>ĐẠI DIỆN CỬA HÀNG</b></span></div>
+            <div class="col-md-12">&nbsp;</div>
+            <div class="col-md-12">&nbsp;</div>
+            <div class="col-md-12">&nbsp;</div>
+            <div class="col-md-12">&nbsp;</div>
+            <div class="col-md-12">
+                <span><b>GIẤY TỜ GỒM CÓ:</b></span>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <span>
+                    <input class="print-hidden" oninput="changeInput(this, 'note_1')" type="text" value="1. ...............................................................">
+                    <span id="note_1" class="only-print">1. ...............................................................</span>
+                </span>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <span>
+                    <input class="print-hidden" oninput="changeInput(this, 'note_2')" type="text" value="2. ...............................................................">
+                    <span id="note_2" class="only-print">2. ...............................................................</span>
+                </span>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <span>
+                    <input class="print-hidden" oninput="changeInput(this, 'note_3')" type="text" value="3. ...............................................................">
+                    <span id="note_3" class="only-print">3. ...............................................................</span>
+                </span>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <span>
+                    <input class="print-hidden" oninput="changeInput(this, 'note_4')" type="text" value="4. ...............................................................">
+                    <span id="note_4" class="only-print">4. ...............................................................</span>
+                </span>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <span>
+                    <input class="print-hidden" oninput="changeInput(this, 'note_5')" type="text" value="5. ...............................................................">
+                    <span id="note_5" class="only-print">5. ...............................................................</span>
+                </span>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <span>
+                    <input class="print-hidden" oninput="changeInput(this, 'note_6')" type="text" value="6. ...............................................................">
+                    <span id="note_6" class="only-print">6. ...............................................................</span>
+                </span>
+            </div>
+            <div class="col-md-12 text-center">
+                <span><i>Kính chúc quý khách thượng lộ - bình an</i></span>
+            </div>
+            <div class="col-md-12 text-center">
+                <span><b>QUÝ KHÁCH CÓ NHU CẦU THAY ĐỔI XE, CỬA HÀNG XIN MUA LẠI VỚI GIÁ ƯU ĐÃI!</b></span>
+            </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12 text-center">
-            <span class="h2 bold" id="ten_cua_hang"></span><br>
-            <span class="h3" id="dia_chi">Đ/c: </span><br>
-            <span class="h3" id="sdt">ĐT: </span><br>
-            <span class="h3" id="ngan_hang">Ngân hàng </span><br>
-            <span class="h2 bold">GIẤY BIÊN NHẬN BÁN HÀNG</span>
-        </div>
-        <div class="col-md-12">
-            <span><b>Sau khi 2 bên thoả thuận mua, bán xe xong cửa hàng chúng tôi nhất trí:</b></span>
-        </div>
-        <div class="col-md-6 col-sm-6">
-            <span class="text-left">Bán cho ông(bà): <input id="ip_ten_khach_hang" class="print-hidden" onchange="changeInput(this, 'ten_khach_hang')" type="text" placeholder="Nhập tên khách hàng">
-                <span id="ten_khach_hang" class="only-print"></span></span>
-        </div>
-        <div class="col-md-6 col-sm-6">
-            <span class=" mr0">Điện thoại: <input id="ip_so_dien_thoai" type="text" class="print-hidden" onchange="changeInput(this, 'so_dien_thoai')"  placeholder="Nhập số điện thoại">
-                <span id="so_dien_thoai" class="only-print"></span></span>
-        </div>
-        <div class="col-md-12 col-sm-12">
-            <span class="text-left">Địa chỉ: <input id="ip_address" type="text" class="print-hidden" onchange="changeInput(this, 'address')"  placeholder="Nhập địa chỉ">
-                <span id="address" class="only-print"></span></span>
-        </div>
-        <div class="col-md-6 col-sm-6">
-            <span class=" mr0">Nhãn hiệu xe: <input id="ip_nhan_xe" type="text" class="print-hidden" onchange="changeInput(this, 'nhan_xe')"  placeholder="Nhập nhãn hiệu xe">
-                <span id="nhan_xe" class="only-print"></span></span>
-        </div>
-        <div class="col-md-6 col-sm-6">
-            <span class="text-left">Màu sơn: <input type="text" class="print-hidden" onchange="changeInput(this, 'mau_son')"  placeholder="Nhập màu sơn">
-                <span id="mau_son" class="only-print"></span></span>
-        </div>
-        <div class="col-md-6 col-sm-6">
-            <span class=" mr0">Số khung - Số máy: <input id="ip_sk_sm" type="text" class="print-hidden" onchange="changeInput(this, 'sk_sm')"  placeholder="Nhập số khung số máy">
-                <span id="sk_sm" class="only-print"></span></span>
-        </div>
-        <div class="col-md-6 col-sm-6">
-            <span class="text-left">Biển số: <input type="text" class="print-hidden" onchange="changeInput(this, 'bien_so')"  placeholder="Nhập biển số">
-                <span id="bien_so" class="only-print"></span></span>
-        </div>
-        <div class="col-md-12 col-sm-12">
-            <span class=" mr0">Đăng ký: <input type="text" class="print-hidden" onchange="changeInput(this, 'dang_ky')"  placeholder="Nhập đăng ký">
-                <span id="dang_ky" class="only-print"></span></span>
-        </div>
-        <div class="col-md-12 col-sm-12">
-            <span class=" mr0">Giá bán: <input type="text" id="ip_gia_ban" class="print-hidden" oninput="changeInputGia(this, 'gia_ban')"  placeholder="Nhập giá bán">
-                <span id="gia_ban" class="only-print"></span></span>
-        </div>
-        <div class="col-md-12 col-sm-12">
-            <span class=" mr0">(Bằng chữ): <span id="str_gia_ban"></span></span>
-        </div>
-        <div class="col-md-12 col-sm-12">
-            <span class=" mr0">Đã thanh toán: <input type="text" id="ip_da_thanh_toan" class="print-hidden" oninput="changeInputGia(this, 'da_thanh_toan')"  placeholder="Nhập số tiền đã thanh toán">
-                <span id="da_thanh_toan" class="only-print"></span></span>
-        </div>
-        <div class="col-md-12 col-sm-12">
-            <span class=" mr0">(Bằng chữ): <span id="str_da_thanh_toan"></span></span>
-        </div>
-        <div class="col-md-12 col-sm-12">
-            <span class=" mr0">Còn thiếu: <input id="ip_con_thieu" type="text" class="print-hidden" onchange="changeInputGia(this, 'con_thieu', false)"  placeholder="Nhập số tiền còn thiếu">
-                <span id="con_thieu" class="only-print"></span></span>
-        </div>
-        <div class="col-md-12 col-sm-12">
-            <span class=" mr0">Hẹn lấy giấy tờ (đăng ký) <input type="text" class="print-hidden w200" onchange="changeInput(this, 'ngay_hen')" value="ngày .... tháng .... năm ....    "> <span class="only-print" id="ngay_hen">ngày .... tháng .... năm .... &nbsp;&nbsp;</span> thanh toán hết số tiền còn lại. Nếu quý khách không đúng hẹn, cửa hàng tính lãi suất 2%/ngày theo thoả thuận.</span>
-        </div>
-        <div class="col-md-12">
-            <span><b><u>Quý khách lưu ý: </u></b> Trước khi bàn giao xe, quý khách vui lòng kiểm tra lại thông tin. Nếu sau này có gì sai sót cửa hàng không chịu trách nhiệm!</span>
-        </div>
-        <div class="col-md-6 col-sm-6"></div>
-        <div class="col-md-6 col-sm-6 text-center">
-            <span>
-                <i><input class="print-hidden w150" oninput="changeInput(this, 'location')" type="text" value="Hải Dương,"><span id="location" class="only-print">Hải Dương,</span></i>
-            </span>
-            <span>
-                <input class="print-hidden w200" placeholder="ngày ... tháng ... năm ..." oninput="changeInput(this, 'sig_date')" type="text" value="ngày .... tháng .... năm .... "><span id="sig_date" class="only-print">ngày .... tháng .... năm .... </span>
-            </span>
-        </div>
-        <div class="col-md-6 col-sm-6 text-center"><span><b>ĐẠI DIỆN BÊN MUA</b></span></div>
-        <div class="col-md-6 col-sm-6 text-center"><span><b>ĐẠI DIỆN CỬA HÀNG</b></span></div>
-        <div class="col-md-12">&nbsp;</div>
-        <div class="col-md-12">&nbsp;</div>
-        <div class="col-md-12">&nbsp;</div>
-        <div class="col-md-12">&nbsp;</div>
-        <div class="col-md-12">
-            <span><b>GIẤY TỜ GỒM CÓ:</b></span>
-        </div>
-        <div class="col-md-6 col-sm-6">
-            <span>
-                <input class="print-hidden" oninput="changeInput(this, 'note_1')" type="text" value="1. ...............................................................">
-                <span id="note_1" class="only-print">1. ...............................................................</span>
-            </span>
-        </div>
-        <div class="col-md-6 col-sm-6">
-            <span>
-                <input class="print-hidden" oninput="changeInput(this, 'note_2')" type="text" value="2. ...............................................................">
-                <span id="note_2" class="only-print">2. ...............................................................</span>
-            </span>
-        </div>
-        <div class="col-md-6 col-sm-6">
-            <span>
-                <input class="print-hidden" oninput="changeInput(this, 'note_3')" type="text" value="3. ...............................................................">
-                <span id="note_3" class="only-print">3. ...............................................................</span>
-            </span>
-        </div>
-        <div class="col-md-6 col-sm-6">
-            <span>
-                <input class="print-hidden" oninput="changeInput(this, 'note_4')" type="text" value="4. ...............................................................">
-                <span id="note_4" class="only-print">4. ...............................................................</span>
-            </span>
-        </div>
-        <div class="col-md-6 col-sm-6">
-            <span>
-                <input class="print-hidden" oninput="changeInput(this, 'note_5')" type="text" value="5. ...............................................................">
-                <span id="note_5" class="only-print">5. ...............................................................</span>
-            </span>
-        </div>
-        <div class="col-md-6 col-sm-6">
-            <span>
-                <input class="print-hidden" oninput="changeInput(this, 'note_6')" type="text" value="6. ...............................................................">
-                <span id="note_6" class="only-print">6. ...............................................................</span>
-            </span>
-        </div>
-        <div class="col-md-12 text-center">
-            <span><i>Kính chúc quý khách thượng lộ - bình an</i></span>
-        </div>
-        <div class="col-md-12 text-center">
-            <span><b>QUÝ KHÁCH CÓ NHU CẦU THAY ĐỔI XE, CỬA HÀNG XIN MUA LẠI VỚI GIÁ ƯU ĐÃI!</b></span>
-        </div>
-    </div>
-   </div>
 </body>
 <style>
     @media print {
@@ -213,10 +243,14 @@
 </style>
 <script>
     const { jsPDF } = window.jspdf;
+    var urlParams = new URLSearchParams(window.location.search);
+    var id = urlParams.get('id');
     var banks = [
       { value: 'ICB', name: '(970415) VietinBank' }, { value: 'VCB', name: '(970436) Vietcombank' }, { value: 'BIDV', name: '(970418) BIDV' }, { value: 'VBA', name: '(970405) Agribank' }, { value: 'OCB', name: '(970448) OCB' }, { value: 'MB', name: '(970422) MBBank' }, { value: 'TCB', name: '(970407) Techcombank' }, { value: 'ACB', name: '(970416) ACB' }, { value: 'VPB', name: '(970432) VPBank' }, { value: 'TPB', name: '(970423) TPBank' }, { value: 'STB', name: '(970403) Sacombank' }, { value: 'HDB', name: '(970437) HDBank' }, { value: 'VCCB', name: '(970454) VietCapitalBank' }, { value: 'SCB', name: '(970429) SCB' }, { value: 'VIB', name: '(970441) VIB' }, { value: 'SHB', name: '(970443) SHB' }, { value: 'EIB', name: '(970431) Eximbank' }, { value: 'MSB', name: '(970426) MSB' }, { value: 'CAKE', name: '(546034) CAKE' }, { value: 'Ubank', name: '(546035) Ubank' }, { value: 'TIMO', name: '(963388) Timo' }, { value: 'VTLMONEY', name: '(971005) ViettelMoney' }, { value: 'VNPTMONEY', name: '(971011) VNPTMoney' }, { value: 'SGICB', name: '(970400) SaigonBank' }, { value: 'BAB', name: '(970409) BacABank' }, { value: 'PVCB', name: '(970412) PVcomBank' }, { value: 'Oceanbank', name: '(970414) Oceanbank' }, { value: 'NCB', name: '(970419) NCB' }, { value: 'SHBVN', name: '(970424) ShinhanBank' }, { value: 'ABB', name: '(970425) ABBANK' }, { value: 'VAB', name: '(970427) VietABank' }, { value: 'NAB', name: '(970428) NamABank' }, { value: 'PGB', name: '(970430) PGBank' }, { value: 'VIETBANK', name: '(970433) VietBank' }, { value: 'BVB', name: '(970438) BaoVietBank' }, { value: 'SEAB', name: '(970440) SeABank' }, { value: 'COOPBANK', name: '(970446) COOPBANK' }, { value: 'LPB', name: '(970449) LienVietPostBank' }, { value: 'KLB', name: '(970452) KienLongBank' }, { value: 'KBank', name: '(668888) KBank' }, { value: 'KBHN', name: '(970462) KookminHN' }, { value: 'KEBHANAHCM', name: '(970466) KEBHanaHCM' }, { value: 'KEBHANAHN', name: '(970467) KEBHANAHN' }, { value: 'MAFC', name: '(977777) MAFC' }, { value: 'CITIBANK', name: '(533948) Citibank' }, { value: 'KBHCM', name: '(970463) KookminHCM' }, { value: 'VBSP', name: '(999888) VBSP' }, { value: 'WVN', name: '(970457) Woori' }, { value: 'VRB', name: '(970421) VRB' }, { value: 'UOB', name: '(970458) UnitedOverseas' }, { value: 'SCVN', name: '(970410) StandardChartered' }, { value: 'PBVN', name: '(970439) PublicBank' }, { value: 'NHB HN', name: '(801011) Nonghyup' }, { value: 'IVB', name: '(970434) IndovinaBank' }, { value: 'IBK - HCM', name: '(970456) IBKHCM' }, { value: 'IBK - HN', name: '(970455) IBKHN' }, { value: 'HSBC', name: '(458761) HSBC' }, { value: 'HLBVN', name: '(970442) HongLeong' }, { value: 'GPB', name: '(970408) GPBank' }, { value: 'DOB', name: '(970406) DongABank' }, { value: 'DBS', name: '(796500) DBSBank' }, { value: 'CIMB', name: '(422589) CIMB' }, { value: 'CBB', name: '(970444) CBBank' },
     ];
     $(document).ready(function () {
+
+        document.getElementById("loadingOverlay").style.display = 'block';
         $.get('api/user/getInfo', function (resp) {
             if (resp.data) {
                 const data = resp.data;
@@ -230,8 +264,6 @@
 
             }
         });
-        var urlParams = new URLSearchParams(window.location.search);
-        var id = urlParams.get('id');
         $.get('api/hoa-don/chi-tiet?id=' + id, function (resp) {
             const data = resp.data;
             $('#ip_ten_khach_hang').val(data.ten_khach_hang);
@@ -250,7 +282,7 @@
                 $('#gia_ban').html(formatMoney(infoSP.gia_ban));
                 $("#str_gia_ban").html(_convert_number_to_words(infoSP.gia_ban));
             }
-
+            document.getElementById("loadingOverlay").style.display = 'none';
         })
     });
     function changeInput(e, idSpan) {
@@ -388,6 +420,7 @@
         return formated;
     }
     function saveFile() {
+        
         document.querySelectorAll('button').forEach(function(button) {
             button.style.display = 'none'; // Ẩn button
         });
@@ -405,7 +438,7 @@
 
         // Lấy nội dung HTML của trang web
         var htmlContent = document.documentElement.outerHTML;
-
+        
         html2canvas(document.documentElement).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'pt', 'a4');
@@ -413,12 +446,14 @@
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
             const pdfBlob = pdf.output('blob');
-
+            
             // Tạo URL Blob từ Blob đã tạo
             const blobUrl = URL.createObjectURL(pdfBlob);
             const formData = new FormData();
             formData.append('file', pdfBlob);
-
+            formData.append('id', id);
+            
+            document.getElementById("loadingOverlay").style.display = 'block';
             $.ajax({
                 url: 'api/hoa-don/save-file',
                 type: 'POST',
@@ -427,14 +462,20 @@
                 contentType: false,
                 success: function(response) {
                     if (response.success) {
+                        document.querySelectorAll('button').forEach(function(button) {
+                            button.style.display = 'block';
+                        });
                         document.querySelectorAll('.print-hidden').forEach(function(ele) {
                             ele.style.display = 'inline';
                         });
                         document.querySelectorAll('.only-print').forEach(function(ele) {
                             ele.style.display = 'none';
                         });
+                        window.open('files/' + response.filename);
                     }
-                    alert(response.message);
+                    else
+                        alert(response.message);
+                    document.getElementById("loadingOverlay").style.display = 'none';
                 },
                 error: function(xhr, status, error) {
                 }

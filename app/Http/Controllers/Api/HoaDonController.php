@@ -181,7 +181,7 @@ class HoaDonController extends BaseController
         $currentUser = Auth::user();
         $id = $request->get('id', '');
         $file = $request->file('file');
-        $model = HoaDon::where(['id' => $id, 'user' => $currentUser->id])->first();
+        $model = HoaDon::where(['id' => $id, 'user_id' => $currentUser->id])->first();
         if (empty($file) || empty($model)) {
             return response()->json(['message' => 'Tham số không đầy đủ','success' => false]);
         }
@@ -196,12 +196,12 @@ class HoaDonController extends BaseController
 
             $model->file = $fileName;
             $model->save();
+            return response()->json(['message' => "Thành công!","success" => true, 'filename' => $currentUser->id . '/' . $fileName]);
 
         } catch (\Exception $e) {
             return response()->json(['message' => "Đã có lỗi xảy ra, vui lòng thử lại!","success" => false]);
         }
 
-        return response()->json(['message' => "Thành công!","success" => true]);
     }
 
     public function chiTiet(Request $request) {

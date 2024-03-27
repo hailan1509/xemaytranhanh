@@ -411,7 +411,7 @@ export default {
       this.handleFilter();
     },
     handleCreateGBN(row) {
-      window.location.href = 'giay-bien-nhan?id=' + row.id;
+      window.open('giay-bien-nhan?id=' + row.id);
     },
     handleInput(value) {
       // console.log(value);
