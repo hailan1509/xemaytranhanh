@@ -356,7 +356,17 @@ export default {
       //   this.form = { ...this.form, ...row };
       // }
       // this.chiTiet = row.chi_tiet;
-      window.open('files/' + this.user.id + '/' + row.file);
+      // window.open('files/' + this.user.id + '/' + row.file);
+      const link = document.createElement('a');
+      link.href = 'files/' + this.user.id + '/' + row.file;
+      link.download = row.file; // Tên tập tin khi tải xuống
+
+      // Thêm phần tử a vào DOM và nhấp vào nó để bắt đầu quá trình tải xuống
+      document.body.appendChild(link);
+      link.click();
+
+      // Sau khi tải xuống, loại bỏ phần tử a khỏi DOM
+      document.body.removeChild(link);
     },
     beforeUpload(file) {
       this.imagePost = file;
