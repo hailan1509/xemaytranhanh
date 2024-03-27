@@ -72,13 +72,13 @@
       </el-table-column>
       <el-table-column :label="$t('table.actions')" align="center" width="200px" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <el-button v-if="row.file" size="mini" type="success" @click="handleView(row)">
+          <el-button v-if="row.file" size="small" type="success" @click="handleView(row)">
             Xem GBN
           </el-button>
-          <el-button v-if="!row.file" size="mini" type="success" @click="handleCreateGBN(row)">
+          <el-button v-if="!row.file" size="small" type="primary" @click="handleCreateGBN(row)">
             Viết GBN
           </el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(row)">
+          <el-button size="small" type="danger" @click="handleDelete(row)">
             {{ $t('table.delete') }}
           </el-button>
         </template>

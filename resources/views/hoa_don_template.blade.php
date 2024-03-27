@@ -435,9 +435,6 @@
 
         // Tạo một instance của jsPDF
         var doc = new jsPDF();
-
-        // Lấy nội dung HTML của trang web
-        var htmlContent = document.documentElement.outerHTML;
         
         html2canvas(document.documentElement).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
