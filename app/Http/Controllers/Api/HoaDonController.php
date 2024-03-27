@@ -199,6 +199,7 @@ class HoaDonController extends BaseController
             return response()->json(['message' => "Thành công!","success" => true, 'filename' => $currentUser->id . '/' . $fileName]);
 
         } catch (\Exception $e) {
+            dd($e);
             return response()->json(['message' => "Đã có lỗi xảy ra, vui lòng thử lại!","success" => false]);
         }
 
