@@ -141,7 +141,6 @@ class HoaDonController extends BaseController
                 DB::commit();
             }
             catch (\Exception $e){
-                // dd($e);
                 DB::rollback();
                 return response()->json(['message' => "Đã có lỗi xảy ra! Hãy thao tác lại","success" => false]);
             }

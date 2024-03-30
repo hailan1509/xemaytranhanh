@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.title" :placeholder="'Tên dịch vụ'" style="width: 300px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.title" :placeholder="'Tên dịch vụ - phụ kiện'" style="width: 300px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <!-- <el-select v-model="listQuery.importance" :placeholder="$t('table.importance')" clearable style="width: 90px" class="filter-item">
         <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
       </el-select> -->
@@ -27,7 +27,7 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column :label="'Dịch vụ'" prop="id" align="center" style="width: 30%;">
+      <el-table-column :label="'Dịch vụ - Phụ kiện'" prop="id" align="center" style="width: 30%;">
         <template slot-scope="scope">
           <span>{{ scope.row.ten_dich_vu }}</span>
         </template>

@@ -408,6 +408,7 @@ export default {
             ...addItem,
             soluong: 1,
             is_dv: true,
+            gia_khuyen_mai: '',
           },
         ];
       } else {
@@ -436,6 +437,7 @@ export default {
             ...addItem,
             soluong: 1,
             is_dv: false,
+            gia_khuyen_mai: '',
           },
         ];
       } else {

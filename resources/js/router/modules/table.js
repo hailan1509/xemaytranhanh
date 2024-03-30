@@ -50,8 +50,8 @@ const tableRoutes = {
     {
       path: 'dich-vu',
       component: () => import('@/views/table/QuanLyDichVu'),
-      name: 'Quản lý dịch vụ',
-      meta: { title: 'Quản lý dịch vụ' },
+      name: 'Quản lý dịch vụ - PK',
+      meta: { title: 'Quản lý dịch vụ - PK' },
     },
     {
       path: 'san-pham',
