@@ -50,6 +50,9 @@ Route::namespace('Api')->group(function() {
     Route::get('nxb/list', 'NhaXuatBanController@index');
     Route::post('nxb/store', 'NhaXuatBanController@store');
     Route::post('nxb/delete', 'NhaXuatBanController@delete');
+    Route::get('dich-vu/list', 'DichVuController@index');
+    Route::post('dich-vu/store', 'DichVuController@store');
+    Route::post('dich-vu/delete', 'DichVuController@delete');
     Route::get('hang-xe/list', 'HangXeController@index');
     Route::post('hang-xe/store', 'HangXeController@store');
     Route::post('hang-xe/delete', 'HangXeController@delete');

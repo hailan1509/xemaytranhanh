@@ -35,6 +35,10 @@ class HoaDon extends Model
     {
         return $this->hasMany(ChiTietHoaDon::class, 'ma_hoa_don', 'id');
     }
+    public function dichVus() : HasMany
+    {
+        return $this->hasMany(ChiTietDichVu::class, 'ma_hoa_don', 'id');
+    }
     public function nxb(): HasOne
     {
         return $this->hasOne(NhaXuatBan::class, 'id', 'nha_xuat_ban');

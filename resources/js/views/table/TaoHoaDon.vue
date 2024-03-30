@@ -83,14 +83,28 @@
               </el-col>
             </el-form-item>
           </el-col>
-          <el-col :xs="12" :sm="6" :lg="3">
+          <el-col :xs="12" :sm="6" :lg="4">
             <el-button style="margin-left: 10px;" class="filter-item" type="success" @click="add_dv(dv_id)">
               Thêm sản phẩm
             </el-button>
           </el-col>
-          <el-col :xs="12" :sm="6" :lg="3">
+          <el-col :xs="12" :sm="6" :lg="4">
             <el-button style="margin-left: 10px;" class="filter-item" type="primary" :disabled="newData.length == 0" @click="dialogPvVisible = true">
               Xem hoá đơn
+            </el-button>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :xs="24" :sm="12" :lg="12">
+            <el-form-item label="Chọn dịch vụ">
+              <el-col :span="24">
+                <v-select v-model="idDv" :options="lstDV" label="ten_dich_vu" placeholder="Tìm kiếm dịch vụ" :reduce="option => option.id" @input="handleInput" @select="handleSelect" />
+              </el-col>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="12" :sm="6" :lg="3">
+            <el-button style="margin-left: 10px;" class="filter-item" type="success" @click="addDV(idDv)">
+              Thêm dịch vụ
             </el-button>
           </el-col>
         </el-row>
@@ -104,7 +118,17 @@
       >
         <el-table-column label="Tên SP">
           <template slot-scope="scope">
-            {{ scope.row.name }}
+            {{ !scope.row.is_dv ? scope.row.name : scope.row.ten_dich_vu }}
+          </template>
+        </el-table-column>
+        <el-table-column label="SK-SM" width="150px">
+          <template slot-scope="scope">
+            {{ !scope.row.is_dv ? scope.row.short_name : '' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="NCC" width="150px">
+          <template slot-scope="scope">
+            {{ !scope.row.is_dv ? scope.row.nha_cung_cap_info.name : '' }}
           </template>
         </el-table-column>
         <el-table-column label="SLượng" width="100px">
@@ -129,7 +153,7 @@
         </el-table-column>
         <el-table-column label="Xoá" width="50px">
           <template slot-scope="scope">
-            <i class="el-icon-error" @click="deleteDV(scope.row.id)" />
+            <i class="el-icon-error" @click="scope.row.is_dv ? delDV(scope.row.id_dv) : deleteDV(scope.row.id)" />
           </template>
         </el-table-column>
       </el-table>
@@ -137,6 +161,27 @@
       <el-form v-if="newData.length > 0" label-width="150px" style="margin-top: 10px">
         <el-form-item label="Ghi chú">
           <el-input v-model="form.note" placeholder="Chú thích thêm" />
+        </el-form-item>
+      </el-form>
+      <el-form v-if="newData.length > 0" label-width="150px">
+        <el-form-item label="Đã thanh toán">
+          <el-input v-model="form.da_tra" placeholder="Đã thanh toán" />
+          <div>
+            <span>{{ _convert_number_to_words(form.da_tra) }}</span>
+          </div>
+        </el-form-item>
+      </el-form>
+      <el-form v-if="newData.length > 0" label-width="150px">
+        <el-form-item label="Tiền đăng ký">
+          <el-input v-model="form.tien_dang_ky" placeholder="Tiền đăng ký" />
+          <div>
+            <span>{{ _convert_number_to_words(form.tien_dang_ky) }}</span>
+          </div>
+        </el-form-item>
+      </el-form>
+      <el-form v-if="newData.length > 0" label-width="150px">
+        <el-form-item label="Trả góp">
+          <el-switch v-model="form.is_tra_gop" />
         </el-form-item>
       </el-form>
       <el-form v-if="newData.length > 0" label-width="150px">
@@ -189,23 +234,31 @@
         </el-row>
         <table class="service-table text-center">
           <thead class="text-center">
-            <th>Tên SP</th>
+            <th class="text-left">Tên SP</th>
             <th width="50px">SL</th>
             <th width="120px">Giá</th>
-            <th width="50px">KM</th>
+            <th width="70px">KM</th>
             <th width="150px">TTiền</th>
           </thead>
           <tbody class="text-center">
             <tr v-for="item of newData" :key="item.id">
-              <td>{{ item.name }}</td>
+              <td class="text-left">{{ item.is_dv ? item.ten_dich_vu : item.name }}</td>
               <td>{{ item.soluong }}</td>
               <td>{{ item.gia_ban | toThousandFilter }}</td>
               <td>{{ item.gia_khuyen_mai ? item.gia_khuyen_mai + '%' : '' }}</td>
-              <td>{{ parseInt(item.gia_khuyen_mai) ? Math.floor((item.soluong * item.gia_ban) - (item.soluong * item.gia_ban) * parseInt(item.gia_khuyen_mai) / 100) : item.soluong * item.gia_ban | toThousandFilter }} VNĐ</td>
+              <td class="text-right">{{ parseInt(item.gia_khuyen_mai) ? Math.floor((item.soluong * item.gia_ban) - (item.soluong * item.gia_ban) * parseInt(item.gia_khuyen_mai) / 100) : item.soluong * item.gia_ban | toThousandFilter }} VNĐ</td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-right"><b>Tiền đăng ký</b></td>
+              <td colspan="1" class="text-right"><b>{{ form.tien_dang_ky | toThousandFilter }} VNĐ</b></td>
             </tr>
             <tr>
               <td colspan="4" class="text-right"><b>{{ form.delivery ? 'Chuyển khoản' : 'Tiền mặt' }}</b></td>
-              <td colspan="1"><b>{{ tongTien() | toThousandFilter }} VNĐ</b></td>
+              <td colspan="1" class="text-right"><b>{{ tongTien() | toThousandFilter }} VNĐ</b></td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-right"><b>Đã thanh toán</b></td>
+              <td colspan="1" class="text-right"><b>{{ form.da_tra | toThousandFilter }} VNĐ</b></td>
             </tr>
             <tr>
               <td colspan="5">{{ _convert_number_to_words(tongTien()) }}</td>
@@ -228,6 +281,7 @@
 <script>
 import { fetchList } from '@/api/san-pham';
 import { fetchList as getNXB } from '@/api/nxb';
+import { fetchList as getDV } from '@/api/dich-vu';
 import { store } from '@/api/hoa-don';
 import { getInfo } from '@/api/users';
 import waves from '@/directive/waves'; // Waves directive
@@ -261,10 +315,15 @@ export default {
         nha_xuat_ban: '',
         cccd: '',
         dia_chi: '',
+        is_tra_gop: false,
+        da_tra: '',
+        tien_dang_ky: '',
       },
       lstDichVu: [],
+      lstDV: [],
       lstNXB: [],
       dv_id: '',
+      idDv: '',
       newData: [],
       lstKhachHang: [],
       min: 0,
@@ -284,6 +343,7 @@ export default {
     this.getList();
     this.getInfo();
     this.getNXB();
+    this.getListDV();
   },
   methods: {
     async getInfo() {
@@ -302,6 +362,12 @@ export default {
       this.listLoading = true;
       const { data } = await fetchList({ viewSelect: 1 });
       this.lstDichVu = data;
+      this.listLoading = false;
+    },
+    async getListDV() {
+      this.listLoading = true;
+      const { data } = await getDV({ viewSelect: 1 });
+      this.lstDV = data;
       this.listLoading = false;
     },
     handleSoLuong(row) {
@@ -329,8 +395,27 @@ export default {
     },
     handleSelectKH(value) {
     },
+    addDV(id) {
+      const item = this.newData.find(x => x.id === id && x.is_dv);
+      if (!item) {
+        const addItem = this.lstDV.find(x => x.id === id);
+        if (!addItem) {
+          return;
+        }
+        this.newData = [
+          ...this.newData,
+          {
+            ...addItem,
+            soluong: 1,
+            is_dv: true,
+          },
+        ];
+      } else {
+        item.soluong += 1;
+      }
+    },
     add_dv(dv_id) {
-      const item = this.newData.find(x => x.id === dv_id);
+      const item = this.newData.find(x => x.id === dv_id && !x.is_dv);
       if (!item) {
         const addItem = this.lstDichVu.find(x => x.id === dv_id);
         if (!addItem) {
@@ -350,6 +435,7 @@ export default {
           {
             ...addItem,
             soluong: 1,
+            is_dv: false,
           },
         ];
       } else {
@@ -366,7 +452,11 @@ export default {
       }
     },
     deleteDV(dv_id) {
-      const index = this.newData.findIndex(x => x.id === dv_id);
+      const index = this.newData.findIndex(x => x.id === dv_id && !x.is_dv);
+      this.newData.splice(index, 1);
+    },
+    delDV(dv_id) {
+      const index = this.newData.findIndex(x => x.id === dv_id && x.is_dv);
       this.newData.splice(index, 1);
     },
     tongTien() {
@@ -374,7 +464,7 @@ export default {
       this.newData.forEach(item => {
         tt += parseInt(item.gia_khuyen_mai) ? Math.floor((item.soluong * item.gia_ban) - (item.soluong * item.gia_ban) * parseInt(item.gia_khuyen_mai) / 100) : (item.soluong * item.gia_ban);
       });
-      return tt;
+      return tt + parseInt(this.form.tien_dang_ky.length > 0 ? this.form.tien_dang_ky : 0);
     },
     async save() {
       if ((this.form.type === 1 && (this.form.name.length === 0 || this.form.phone.length === 0)) || (this.form.type === 0 && this.form.nha_xuat_ban.length === 0) || this.newData.length === 0) {
@@ -482,14 +572,18 @@ export default {
         1000000000000000000: 'tỷ tỷ',
       };
 
+      if (!(number)) {
+        return '';
+      }
+
       if (isNaN(number)) {
-        return false;
+        return '';
       }
 
       if ((number >= 0 && parseInt(number) < 0) || parseInt(number) < 0 - Number.MAX_SAFE_INTEGER) {
         // overflow
         console.warn('convert_number_to_words only accepts numbers between -' + Number.MAX_SAFE_INTEGER + ' and ' + Number.MAX_SAFE_INTEGER);
-        return false;
+        return '';
       }
 
       if (number < 0) {
@@ -609,7 +703,7 @@ export default {
   background-color: #962d22;
 }
 .text-left {
-  text-align: left;
+  text-align: left !important;
 }
 .text-right {
   text-align: right !important;

@@ -135,7 +135,7 @@
                     <span id="dang_ky" class="only-print"></span></span>
             </div>
             <div class="col-md-12 col-sm-12">
-                <span class=" mr0">Giá bán: <input type="text" id="ip_gia_ban" class="print-hidden" oninput="changeInputGia(this, 'gia_ban')"  placeholder="Nhập giá bán">
+                <span class=" mr0">Tổng tiền: <input type="text" id="ip_gia_ban" class="print-hidden" oninput="changeInputGia(this, 'gia_ban')"  placeholder="Nhập giá bán">
                     <span id="gia_ban" class="only-print"></span></span>
             </div>
             <div class="col-md-12 col-sm-12">
@@ -272,15 +272,22 @@
             $('#so_dien_thoai').html(data.sdt);
             $('#ip_address').val(data.dia_chi);
             $('#address').html(data.dia_chi);
+            $('#ip_gia_ban').val(data.tong_tien);
+            $('#ip_da_thanh_toan').val(data.da_tra);
+            $('#da_thanh_toan').html(formatMoney(data.da_tra));
+            $("#str_da_thanh_toan").html(_convert_number_to_words(data.da_tra));
+            $('#gia_ban').html(formatMoney(data.tong_tien));
+            $("#str_gia_ban").html(_convert_number_to_words(data.tong_tien));
+            if ($("#ip_gia_ban").val().toString().length > 0 && $("#ip_da_thanh_toan").val().toString().length > 0 ) {
+                $("#ip_con_thieu").val(parseInt($("#ip_gia_ban").val()) - parseInt($("#ip_da_thanh_toan").val()));
+                $("#con_thieu").html(formatMoney($("#ip_con_thieu").val()))
+            }
             if (data.chi_tiet.length > 0) {
                 const infoSP = data.chi_tiet[0];
                 $('#ip_nhan_xe').val(infoSP.san_pham.name);
                 $('#nhan_xe').html(infoSP.san_pham.name);
                 $('#ip_sk_sm').val(infoSP.san_pham.short_name);
                 $('#sk_sm').html(infoSP.san_pham.short_name);
-                $('#ip_gia_ban').val(infoSP.gia_ban);
-                $('#gia_ban').html(formatMoney(infoSP.gia_ban));
-                $("#str_gia_ban").html(_convert_number_to_words(infoSP.gia_ban));
             }
             document.getElementById("loadingOverlay").style.display = 'none';
         })
@@ -343,6 +350,9 @@
       };
 
       if (isNaN(number)) {
+        return false;
+      }
+      if (!(number)) {
         return false;
       }
 

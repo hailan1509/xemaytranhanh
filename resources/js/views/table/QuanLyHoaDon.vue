@@ -70,13 +70,16 @@
           <span>{{ scope.row.note }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.actions')" align="center" width="200px" class-name="small-padding fixed-width">
+      <el-table-column :label="$t('table.actions')" align="center" width="300px" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <el-button v-if="row.file" size="small" type="success" @click="handleView(row)">
+          <el-button v-if="row.file && row.type == 1" size="small" type="success" @click="handleView(row)">
             Xem GBN
           </el-button>
-          <el-button v-if="!row.file" size="small" type="primary" @click="handleCreateGBN(row)">
+          <el-button v-if="!row.file && row.type == 1" size="small" type="primary" @click="handleCreateGBN(row)">
             Viết GBN
+          </el-button>
+          <el-button size="small" type="success" @click="viewHD(row)">
+            Chi tiết
           </el-button>
           <el-button size="small" type="danger" @click="handleDelete(row)">
             {{ $t('table.delete') }}
@@ -87,7 +90,7 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <el-dialog :title="'Chi tiết hóa đơn'" :visible.sync="dialogFormVisible">
+    <el-dialog :title="'Chi tiết hóa đơn'" :visible.sync="dialogFormVisible" width="800px !important">
       <el-table
         v-if="chiTiet.length > 0"
         ref="dragTable"
@@ -132,7 +135,7 @@
         </el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="dialogPvVisibleHD" title="Xem thông tin hóa đơn" width="650px !important" backdrop-static>
+    <el-dialog :visible.sync="dialogPvVisibleHD" title="Xem thông tin hóa đơn" width="800px !important" backdrop-static>
       <el-row class="line">
         <el-col :span="24">
           <h2>{{ user.ten_cua_hang }}</h2>
@@ -176,29 +179,50 @@
       </el-row>
       <table class="service-table text-center">
         <thead class="text-center">
-          <th>Tên SP</th>
+          <th class="text-left">Tên SP</th>
           <th>SK - SM</th>
           <th width="50px">SL</th>
           <th width="120px">Giá</th>
-          <th width="150px">TTiền</th>
+          <th width="70px">KM</th>
+          <th width="150px" class="text-right">TTiền</th>
         </thead>
         <tbody class="text-center">
+          <tr>
+            <td colspan="6" class="text-left"><b>Sản phẩm</b></td>
+          </tr>
           <tr v-for="item of chiTiet" :key="item.id">
-            <td>{{ item.san_pham ? item.san_pham.name : '' }}</td>
+            <td class="text-left">{{ item.san_pham ? item.san_pham.name : '' }}</td>
             <td>{{ item.san_pham ? item.san_pham.short_name : '' }}</td>
             <td>{{ item.so_luong }}</td>
             <td>{{ item.gia_ban | toThousandFilter }}</td>
-            <td>{{ item.so_luong * item.gia_ban | toThousandFilter }} VNĐ</td>
+            <td>{{ item.ma_khuyen_mai ? item.ma_khuyen_mai + '%' : '' }}</td>
+            <td class="text-right">{{ item.ma_khuyen_mai ? (item.so_luong * item.gia_ban * (100 - item.ma_khuyen_mai) / 100) : item.so_luong * item.gia_ban | toThousandFilter }} VNĐ</td>
           </tr>
           <tr>
-            <td colspan="4" class="text-right"><b>{{ form.delivery ? 'Chuyển khoản' : 'Tiền mặt' }}</b></td>
-            <td colspan="1"><b>{{ form.tong_tien | toThousandFilter }} VNĐ</b></td>
+            <td colspan="6" class="text-left"><b>Dịch vụ - Phụ kiện</b></td>
+          </tr>
+          <tr v-for="item of dichVus" :key="item.id">
+            <td colspan="2" class="text-left">{{ item.dich_vu ? item.dich_vu.ten_dich_vu : '' }}</td>
+            <td>{{ item.so_luong }}</td>
+            <td>{{ item.gia_ban | toThousandFilter }}</td>
+            <td>{{ item.ma_khuyen_mai ? item.ma_khuyen_mai + '%' : '' }}</td>
+            <td class="text-right">{{ item.ma_khuyen_mai ? (item.so_luong * item.gia_ban * (100 - item.ma_khuyen_mai) / 100) : item.so_luong * item.gia_ban | toThousandFilter }} VNĐ</td>
           </tr>
           <tr>
-            <td colspan="5">{{ _convert_number_to_words(form.tong_tien) }}</td>
+            <td colspan="5" class="text-right"><b>Đăng ký</b></td>
+            <td colspan="1" class="text-right"><b>{{ form.tien_dang_ky | toThousandFilter }} VNĐ</b></td>
           </tr>
           <tr>
-            <td colspan="5">{{ form.note }}</td>
+            <td colspan="5" class="text-right"><b>{{ form.delivery ? 'Chuyển khoản' : 'Tiền mặt' }}</b></td>
+            <td colspan="1" class="text-right"><b>{{ form.tong_tien | toThousandFilter }} VNĐ</b></td>
+          </tr>
+          <tr>
+            <td colspan="5" class="text-right"><b>Đã thanh toán</b></td>
+            <td colspan="1" class="text-right"><b>{{ form.da_tra | toThousandFilter }} VNĐ</b></td>
+          </tr>
+          <tr>
+            <td class="text-left"><b>Ghi chú</b></td>
+            <td colspan="5" class="text-left">{{ form.note }}</td>
           </tr>
         </tbody>
       </table>
@@ -317,6 +341,7 @@ export default {
       imagePost: null,
       activeTab: 'first',
       chiTiet: [],
+      dichVus: [],
       user: {},
       form: {
         sdt: '',
@@ -367,6 +392,16 @@ export default {
 
       // Sau khi tải xuống, loại bỏ phần tử a khỏi DOM
       document.body.removeChild(link);
+    },
+    viewHD(row) {
+      if (!this.listQuery.type) {
+        this.dialogFormVisible = true;
+      } else {
+        this.dialogPvVisibleHD = true;
+        this.form = { ...this.form, ...row };
+        this.dichVus = row.dich_vus;
+      }
+      this.chiTiet = row.chi_tiet;
     },
     beforeUpload(file) {
       this.imagePost = file;
@@ -624,7 +659,7 @@ export default {
   background-color: #962d22;
 }
 .text-left {
-  text-align: left;
+  text-align: left !important;
 }
 .text-right {
   text-align: right !important;

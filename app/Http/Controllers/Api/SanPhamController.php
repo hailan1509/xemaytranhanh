@@ -53,7 +53,7 @@ class SanPhamController extends BaseController
         $query = $query->orderBy('ngay_nhap', 'desc');
 
         if (!empty($searchParams['viewSelect'])) {
-            $query = $query->get();
+            $query = $query->with('nhaCungCapInfo')->get();
         }
         else {
             $query = $query->with('nhaCungCapInfo')->paginate($limit);
@@ -117,6 +117,8 @@ class SanPhamController extends BaseController
                     $model->so_luong_nhap = $searchParams['so_luong_nhap'];
                     $model->phuong_thuc_nhap = $searchParams['phuong_thuc_nhap'];
                     $model->ngay_nhap = $searchParams['ngay_nhap'];
+                    $model->bien_so = $searchParams['bien_so'];
+                    $model->ten_chu_cu = $searchParams['ten_chu_cu'];
                     $model->note = $searchParams['note'];
                     if (!empty($request->image)) {
                         if (!empty($model->img)) {
@@ -145,6 +147,8 @@ class SanPhamController extends BaseController
                 $model->so_luong_nhap = $searchParams['so_luong_nhap'];
                 $model->phuong_thuc_nhap = $searchParams['phuong_thuc_nhap'];
                 $model->ngay_nhap = $searchParams['ngay_nhap'];
+                $model->bien_so = $searchParams['bien_so'];
+                $model->ten_chu_cu = $searchParams['ten_chu_cu'];
                 $model->note = $searchParams['note'];
                 if (!empty($request->image)) {
                     $model->img = $imageName;

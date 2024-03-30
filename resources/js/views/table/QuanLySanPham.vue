@@ -128,6 +128,12 @@
 
           </el-tab-pane>
           <el-tab-pane :label="'Thêm'">
+            <el-form-item :label="'Biển số'" prop="phuong_thuc_nhap">
+              <el-input v-model="temp.bien_so" />
+            </el-form-item>
+            <el-form-item :label="'Thông tin chủ cũ'" prop="phuong_thuc_nhap">
+              <el-input v-model="temp.ten_chu_cu" />
+            </el-form-item>
             <el-form-item :label="'Phương thức nhập'" prop="phuong_thuc_nhap">
               <el-input v-model="temp.phuong_thuc_nhap" />
             </el-form-item>
@@ -290,6 +296,8 @@ export default {
         image: '',
         note: '',
         img_path: '',
+        bien_so: '',
+        ten_chu_cu: '',
       },
       dialogFormVisible: false,
       dialogStatus: '',

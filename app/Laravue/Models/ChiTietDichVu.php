@@ -5,17 +5,18 @@ namespace App\Laravue\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ChiTietHoaDon extends Model
+class ChiTietDichVu extends Model
 {
-    use HasFactory;
-    protected $table = 'chi_tiet_hoa_don';
+    use HasFactory, SoftDeletes;
+    protected $table = 'chi_tiet_dich_vu';
     public $timestamps = true;
     protected $fillable = [
         'id',
         'user_id',
         'ma_hoa_don',
-        'ma_san_pham',
+        'ma_dich_vu',
         'gia_ban',
         'so_luong',
         'note',
@@ -25,9 +26,9 @@ class ChiTietHoaDon extends Model
         'ma_khuyen_mai',
     ];
 
-    public function sanPham() : HasOne
+    public function dichVu() : HasOne
     {
-        return $this->hasOne(SanPham::class, 'id', 'ma_san_pham');
+        return $this->hasOne(DichVu::class, 'id', 'ma_dich_vu');
     }
 
     public function hoaDon() : HasOne

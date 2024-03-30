@@ -9,9 +9,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Laravue\Models\ChiTietDichVu;
 use App\Laravue\Models\HoaDon;
 use App\Laravue\Models\SanPham;
 use App\Laravue\Models\ChiTietHoaDon;
+use App\Laravue\Models\DichVu;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -67,7 +69,7 @@ class HoaDonController extends BaseController
                     $query->where('nha_xuat_ban', $nxb);
                 }
             }
-            $data = $query->with(['chiTiet', 'chiTiet.sanPham', 'nxb', 'chiTiet.sanPham.nhaCungCapInfo'])->orderBy('ngay_ban', 'desc')->paginate($limit);
+            $data = $query->with(['chiTiet', 'chiTiet.sanPham', 'nxb', 'chiTiet.sanPham.nhaCungCapInfo', 'dichVus', 'dichVus.dichVu'])->orderBy('ngay_ban', 'desc')->paginate($limit);
             return response()->json(['data' => $data], 200);
         }
 
@@ -81,11 +83,12 @@ class HoaDonController extends BaseController
         $total = $request->get('total', '0');
         $delivery = $request->get('delivery', false);
         $data = $request->get('data', []);
-        if(empty($data) || ((int)$request->get('type', 1) == 1 && (empty($name) || empty($phone))) || ((int)$request->get('type', 1) && empty($request->get('nha_xuat_ban', '')))) {
+        $dataDv = $request->get('dataDv', []);
+        if(empty($data) || ((int)$request->get('type', 1) == 1 && (empty($name) || empty($phone))) || ((int)$request->get('type', 1) == 0 && empty($request->get('nha_xuat_ban', '')))) {
             return response()->json(['message' => 'Tham số không đẩy đủ',"success" => false]);
         }
         $pass = false;
-        DB::transaction(function() use($name, $phone, $data, $delivery, $total, &$pass, $currentUser, $dia_chi, $request) {
+        DB::transaction(function() use($name, $phone, $data, $delivery, $total, &$pass, $currentUser, $dia_chi, $request, $dataDv) {
             try {
                 $hoa_don_new = new HoaDon();
                 $hoa_don_new->user_id = $currentUser->id;
@@ -99,27 +102,46 @@ class HoaDonController extends BaseController
                 // $hoa_don_new->ngay_sinh = $request->get('ngay_sinh', '');
                 $hoa_don_new->note = $request->get('note', '');
                 $hoa_don_new->chuyen_khoan = $delivery == false ? 0 : 1;
+                $hoa_don_new->is_tra_gop = $request->get('is_tra_gop', false) == false ? 0 : 1;
+                $hoa_don_new->da_tra = $request->get('da_tra', '');
+                $hoa_don_new->tien_dang_ky = $request->get('tien_dang_ky', '');
                 $hoa_don_new->ngay_ban = $request->get('ngay_ban', '') ? : Carbon::now();
                 $hoa_don_new->save();
                 $id_new = $hoa_don_new->id;
                 foreach($data as $v) {
-                    $sp = SanPham::find($v['id']);
-                    if (!empty($sp)) {
-                        $values = ['ma_hoa_don' => $id_new, 'user_id' => $currentUser->id, 'ma_san_pham' => $v['id'], 'gia_ban' => $v['gia_ban'], 'so_luong' => $v['soluong']];
-                        ChiTietHoaDon::create($values);
-                        $sp->so_luong_con_lai = $sp->so_luong_con_lai - (int)$v['soluong'];
-                        $sp->save();
+                    if (!$v['is_dv']) {
+                        $sp = SanPham::find($v['id']);
+                        if (!empty($sp)) {
+                            $values = ['ma_hoa_don' => $id_new, 'user_id' => $currentUser->id, 'ma_san_pham' => $v['id'], 'gia_ban' => $v['gia_ban'], 'so_luong' => $v['soluong'], 'ma_khuyen_mai' => $v['gia_khuyen_mai']];
+                            ChiTietHoaDon::create($values);
+                            $sp->so_luong_con_lai = $sp->so_luong_con_lai - (int)$v['soluong'];
+                            $sp->save();
+                        }
+                        else {
+                            DB::rollback();
+                            return response()->json(['message' => "Đã có sản phẩm không tồn tại trong hệ thống!","success" => false]);
+                        }
                     }
-                    else {
-                        DB::rollback();
-                        return response()->json(['message' => "Đã có sản phẩm không tồn tại trong hệ thống!","success" => false]);
+                }
+                foreach($data as $v) {
+                    if ($v['is_dv']) {
+                        $sp = DichVu::find($v['id']);
+                        if (!empty($sp)) {
+                            $values = ['ma_hoa_don' => $id_new, 'user_id' => $currentUser->id, 'ma_dich_vu' => $v['id'], 'gia_ban' => $v['gia_ban'], 'so_luong' => $v['soluong'], 'ma_khuyen_mai' => $v['gia_khuyen_mai']];
+                            ChiTietDichVu::create($values);
+                            $sp->save();
+                        }
+                        else {
+                            DB::rollback();
+                            return response()->json(['message' => "Đã có dịch vụ không tồn tại trong hệ thống!","success" => false]);
+                        }
                     }
                 }
                 $pass = true;
                 DB::commit();
             }
             catch (\Exception $e){
-                dd($e);
+                // dd($e);
                 DB::rollback();
                 return response()->json(['message' => "Đã có lỗi xảy ra! Hãy thao tác lại","success" => false]);
             }
@@ -208,7 +230,7 @@ class HoaDonController extends BaseController
     public function chiTiet(Request $request) {
         $id = $request->input('id', '');
         $currentUser = Auth::user();
-        $model = HoaDon::where(['id' => $id, 'user_id' => $currentUser->id])->with(['chiTiet', 'chiTiet.sanPham'])->first();
+        $model = HoaDon::where(['id' => $id, 'user_id' => $currentUser->id])->with(['chiTiet', 'chiTiet.sanPham', 'dichVus', 'dichVus.dichVu'])->first();
         return response()->json(['data' => $model,"success" => true]);
     }
 }
