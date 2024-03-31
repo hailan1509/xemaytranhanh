@@ -288,13 +288,15 @@
             }
             const keys = ['ngay_hen_dang_ky', 'ngay_viet_gbn', 'dang_ky', 'dia_diem_gbn', 'note_them'];
             keys.forEach(v => {
-                $('#ip_' + v).val(data[v]);
-                $('#' + v).html(data[v]);
+                if (data[v]) {
+                    $('#ip_' + v).val(data[v]);
+                    $('#' + v).html(data[v]);
+                }
             });
-            const arrNote = data.note_gbn.split('|');
+            const arrNote = data.note_gbn ? data.note_gbn.split('|') : [];
             if (arrNote.length > 1) {
                 for (let i = 1; i <= 6; i++) {
-                    if ((i-1) in arrNote) {
+                    if ((i-1) in arrNote && arrNote[i]) {
                         $('#ip_note_' + i).val(arrNote[i-1]);
                         $('#note_' + i).html(arrNote[i-1]);
                     }

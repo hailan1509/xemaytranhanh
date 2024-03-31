@@ -88,66 +88,65 @@ class HoaDonController extends BaseController
             return response()->json(['message' => 'Tham số không đẩy đủ',"success" => false]);
         }
         $pass = false;
-        DB::transaction(function() use($name, $phone, $data, $delivery, $total, &$pass, $currentUser, $dia_chi, $request, $dataDv) {
+        $id_new = "";
             try {
                 $hoa_don_new = new HoaDon();
-                $hoa_don_new->user_id = $currentUser->id;
-                $hoa_don_new->ten_khach_hang = $name;
-                $hoa_don_new->sdt = $phone;
-                $hoa_don_new->dia_chi = $dia_chi;
-                $hoa_don_new->cccd = $request->get('cccd', '');
-                $hoa_don_new->type = $request->get('type', 1);
-                $hoa_don_new->nha_xuat_ban = $request->get('nha_xuat_ban', '');
-                $hoa_don_new->tong_tien = $total;
-                // $hoa_don_new->ngay_sinh = $request->get('ngay_sinh', '');
-                $hoa_don_new->note = $request->get('note', '');
-                $hoa_don_new->chuyen_khoan = $delivery == false ? 0 : 1;
-                $hoa_don_new->is_tra_gop = $request->get('is_tra_gop', false) == false ? 0 : 1;
-                $hoa_don_new->da_tra = $request->get('da_tra', '');
-                $hoa_don_new->tien_dang_ky = $request->get('tien_dang_ky', '');
-                $hoa_don_new->ngay_ban = $request->get('ngay_ban', '') ? : Carbon::now();
-                $hoa_don_new->save();
-                $id_new = $hoa_don_new->id;
-                foreach($data as $v) {
-                    if (!$v['is_dv']) {
-                        $sp = SanPham::find($v['id']);
-                        if (!empty($sp)) {
-                            $values = ['ma_hoa_don' => $id_new, 'user_id' => $currentUser->id, 'ma_san_pham' => $v['id'], 'gia_ban' => $v['gia_ban'], 'so_luong' => $v['soluong'], 'ma_khuyen_mai' => $v['gia_khuyen_mai']];
-                            ChiTietHoaDon::create($values);
-                            $sp->so_luong_con_lai = $sp->so_luong_con_lai - (int)$v['soluong'];
-                            $sp->save();
-                        }
-                        else {
-                            DB::rollback();
-                            return response()->json(['message' => "Đã có sản phẩm không tồn tại trong hệ thống!","success" => false]);
-                        }
-                    }
-                }
-                foreach($data as $v) {
-                    if ($v['is_dv']) {
-                        $sp = DichVu::find($v['id']);
-                        if (!empty($sp)) {
-                            $values = ['ma_hoa_don' => $id_new, 'user_id' => $currentUser->id, 'ma_dich_vu' => $v['id'], 'gia_ban' => $v['gia_ban'], 'so_luong' => $v['soluong'], 'ma_khuyen_mai' => $v['gia_khuyen_mai']];
-                            ChiTietDichVu::create($values);
-                            $sp->save();
-                        }
-                        else {
-                            DB::rollback();
-                            return response()->json(['message' => "Đã có dịch vụ không tồn tại trong hệ thống!","success" => false]);
+                DB::transaction(function() use($name, $phone, $data, $delivery, $total, &$pass, $currentUser, $dia_chi, $request, $hoa_don_new) {
+                    $hoa_don_new->user_id = $currentUser->id;
+                    $hoa_don_new->ten_khach_hang = $name;
+                    $hoa_don_new->sdt = $phone;
+                    $hoa_don_new->dia_chi = $dia_chi;
+                    $hoa_don_new->cccd = $request->get('cccd', '');
+                    $hoa_don_new->type = $request->get('type', 1);
+                    $hoa_don_new->nha_xuat_ban = $request->get('nha_xuat_ban', '');
+                    $hoa_don_new->tong_tien = $total;
+                    // $hoa_don_new->ngay_sinh = $request->get('ngay_sinh', '');
+                    $hoa_don_new->note = $request->get('note', '');
+                    $hoa_don_new->chuyen_khoan = $delivery == false ? 0 : 1;
+                    $hoa_don_new->is_tra_gop = $request->get('is_tra_gop', false) == false ? 0 : 1;
+                    $hoa_don_new->da_tra = $request->get('da_tra', '');
+                    $hoa_don_new->tien_dang_ky = $request->get('tien_dang_ky', '');
+                    $hoa_don_new->ngay_ban = $request->get('ngay_ban', '') ? : Carbon::now();
+                    $hoa_don_new->save();
+                    $id_new = $hoa_don_new->id;
+                    foreach($data as $v) {
+                        if (!$v['is_dv']) {
+                            $sp = SanPham::find($v['id']);
+                            if (!empty($sp)) {
+                                $values = ['ma_hoa_don' => $id_new, 'user_id' => $currentUser->id, 'ma_san_pham' => $v['id'], 'gia_ban' => $v['gia_ban'], 'so_luong' => $v['soluong'], 'ma_khuyen_mai' => $v['gia_khuyen_mai']];
+                                ChiTietHoaDon::create($values);
+                                $sp->so_luong_con_lai = $sp->so_luong_con_lai - (int)$v['soluong'];
+                                $sp->save();
+                            }
+                            else {
+                                DB::rollback();
+                                return response()->json(['message' => "Đã có sản phẩm không tồn tại trong hệ thống!","success" => false]);
+                            }
                         }
                     }
-                }
-                $pass = true;
-                DB::commit();
+                    foreach($data as $v) {
+                        if ($v['is_dv']) {
+                            $sp = DichVu::find($v['id']);
+                            if (!empty($sp)) {
+                                $values = ['ma_hoa_don' => $id_new, 'user_id' => $currentUser->id, 'ma_dich_vu' => $v['id'], 'gia_ban' => $v['gia_ban'], 'so_luong' => $v['soluong'], 'ma_khuyen_mai' => $v['gia_khuyen_mai']];
+                                ChiTietDichVu::create($values);
+                                $sp->save();
+                            }
+                            else {
+                                DB::rollback();
+                                return response()->json(['message' => "Đã có dịch vụ không tồn tại trong hệ thống!","success" => false]);
+                            }
+                        }
+                    }
+                    $pass = true;
+                    DB::commit();
+                });
+                return response()->json(['message' => "Thành công !","success" => true, 'idNew' => $hoa_don_new->id]);
             }
             catch (\Exception $e){
                 DB::rollback();
                 return response()->json(['message' => "Đã có lỗi xảy ra! Hãy thao tác lại","success" => false, 'msg' => $e->getMessage()]);
             }
-        });
-        if($pass)
-            return response()->json(['message' => "Thành công !","success" => true]);
-        else return response()->json(['message' => "Đã có lỗi xảy ra! Hãy thao tác lại","success" => false]);
     }
 
     public function delete(Request $request) {

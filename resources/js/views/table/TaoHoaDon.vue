@@ -253,7 +253,7 @@
               <td colspan="1" class="text-right"><b>{{ form.tien_dang_ky | toThousandFilter }} VNĐ</b></td>
             </tr>
             <tr>
-              <td colspan="4" class="text-right"><b>{{ form.delivery ? 'Chuyển khoản' : 'Tiền mặt' }}</b></td>
+              <td colspan="4" class="text-right"><b>{{ form.is_tra_gop ? 'Trả góp' : (form.delivery ? 'Chuyển khoản' : 'Tiền mặt') }}</b></td>
               <td colspan="1" class="text-right"><b>{{ tongTien() | toThousandFilter }} VNĐ</b></td>
             </tr>
             <tr>
@@ -493,7 +493,7 @@ export default {
             ... this.form,
             ...tmp,
           };
-          const { success, message } = await store(params);
+          const { success, message, idNew } = await store(params);
           if (success) {
             this.$notify({
               title: 'Thông báo',
@@ -502,6 +502,7 @@ export default {
               duration: 2000,
             });
             // this.dialogPvVisible = true;
+            window.open('giay-bien-nhan?id=' + idNew);
             this.$router.push({ path: '/hoa-don/list', query: {}}, onAbort => {});
             this.listLoading = false;
           } else {

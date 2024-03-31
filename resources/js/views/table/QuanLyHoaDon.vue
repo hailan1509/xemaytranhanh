@@ -72,11 +72,8 @@
       </el-table-column>
       <el-table-column :label="$t('table.actions')" align="center" width="300px" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <el-button v-if="row.file && row.type == 1" size="small" type="success" @click="handleView(row)">
+          <el-button v-if="row.type == 1" size="small" type="primary" @click="handleCreateGBN(row)">
             Xem GBN
-          </el-button>
-          <el-button v-if="!row.file && row.type == 1" size="small" type="primary" @click="handleCreateGBN(row)">
-            Viết GBN
           </el-button>
           <el-button size="small" type="success" @click="viewHD(row)">
             Chi tiết
@@ -213,7 +210,7 @@
             <td colspan="1" class="text-right"><b>{{ form.tien_dang_ky | toThousandFilter }} VNĐ</b></td>
           </tr>
           <tr>
-            <td colspan="5" class="text-right"><b>{{ form.delivery ? 'Chuyển khoản' : 'Tiền mặt' }}</b></td>
+            <td colspan="5" class="text-right"><b>{{ form.is_tra_gop ? 'Trả góp' : (form.delivery ? 'Chuyển khoản' : 'Tiền mặt') }}</b></td>
             <td colspan="1" class="text-right"><b>{{ form.tong_tien | toThousandFilter }} VNĐ</b></td>
           </tr>
           <tr>
