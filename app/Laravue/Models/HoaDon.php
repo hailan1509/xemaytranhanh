@@ -29,6 +29,13 @@ class HoaDon extends Model
         'type',
         'nha_xuat_ban',
         'cccd',
+        'ngay_hen_dang_ky',
+        'dang_ky',
+        'ngay_viet_gbn',
+        'dia_diem_gbn',
+        'note_gbn',
+        'note_them',
+        'bien_so',
     ];
 
     public function chiTiet() : HasMany

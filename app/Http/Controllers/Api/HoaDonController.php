@@ -200,24 +200,22 @@ class HoaDonController extends BaseController
 
     public function saveFile(Request $request) {
         $currentUser = Auth::user();
-        $id = $request->get('id', '');
-        $file = $request->file('file');
+
+        $id = $request->input('id', '');
         $model = HoaDon::where(['id' => $id, 'user_id' => $currentUser->id])->first();
-        if (empty($file) || empty($model)) {
-            return response()->json(['message' => 'Tham số không đầy đủ','success' => false]);
+        if (empty($model)) {
+            return response()->json(['message' => 'Thông tin không đầy đủ, vui lòng xem lại!','success' => false, 'id' => $request->all()]);
         }
         try {
-            $fileName = $model->ngay_ban . '_' .time() . '.pdf';
-            $path = public_path().'/files'.'/' . $currentUser->id ;
-            if (!File::exists($path)) {
-                // Nếu thư mục abc chưa tồn tại, thêm mới nó
-                File::makeDirectory($path, $mode = 0755, $recursive = true);
-            }
-            $file->move($path, $fileName);
-
-            $model->file = $fileName;
+            $model->ngay_hen_dang_ky = $request->get('ngay_hen_dang_ky', '');
+            $model->dang_ky = $request->get('dang_ky', '');
+            $model->ngay_viet_gbn = $request->get('ngay_viet_gbn', '');
+            $model->dia_diem_gbn = $request->get('dia_diem_gbn', '');
+            $model->note_gbn = $request->get('note_gbn', '');
+            $model->note_them = $request->get('note_them', '');
+            $model->bien_so = $request->get('bien_so', '');
             $model->save();
-            return response()->json(['message' => "Thành công!","success" => true, 'filename' => $currentUser->id . '/' . $fileName]);
+            return response()->json(['message' => "Thành công!","success" => true]);
 
         } catch (\Exception $e) {
             dd($e);

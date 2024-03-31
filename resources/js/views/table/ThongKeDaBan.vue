@@ -135,8 +135,8 @@
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="dialogPvVisible" :title="'Danh sách hóa đơn'">
-      <el-label>{{ 'Sản phẩm : ' + currentSP.name }}</el-label>
+    <el-dialog :visible.sync="dialogPvVisible" :title="'Danh sách hóa đơn'" width="800px !important">
+      <span>{{ 'Sản phẩm : ' + currentSP.name }}</span>
       <el-table :data="hoaDon" border fit highlight-current-row style="width: 100%">
         <el-table-column :label="'Tên KH'" align="center">
           <template slot-scope="scope">
@@ -163,9 +163,19 @@
             <span>{{ scope.row.so_luong }}</span>
           </template>
         </el-table-column>
-        <el-table-column :label="'Giá bán'" align="center">
+        <el-table-column :label="'Giá bán'" align="right">
           <template slot-scope="scope">
             <span>{{ scope.row.gia_ban | toThousandFilter }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="'KM'" align="center">
+          <template slot-scope="scope">
+            <span>{{ scope.row.gia_khuyen_mai ? scope.row.gia_khuyen_mai + '%' : '' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="'TTiền'" align="right">
+          <template slot-scope="scope">
+            <span>{{ scope.row.gia_khuyen_mai ? (scope.row.so_luong * scope.row.gia_ban) * (100 - scope.row.gia_khuyen_mai) / 100 : scope.row.so_luong * scope.row.gia_ban | toThousandFilter }}</span>
           </template>
         </el-table-column>
       </el-table>

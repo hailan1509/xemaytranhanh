@@ -90,6 +90,9 @@
             <el-form-item :label="'Tên sản phẩm'" prop="name">
               <el-input v-model="temp.name" />
             </el-form-item>
+            <el-form-item :label="'Màu sơn'" prop="mau">
+              <el-input v-model="temp.mau" />
+            </el-form-item>
             <el-form-item :label="'Số khung - máy'" prop="short_name">
               <el-input v-model="temp.short_name" />
             </el-form-item>
@@ -298,6 +301,7 @@ export default {
         img_path: '',
         bien_so: '',
         ten_chu_cu: '',
+        mau: '',
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -309,6 +313,7 @@ export default {
       pvData: [],
       rules: {
         name: [{ required: true, message: 'Vui lòng nhập tên sản phẩm!', trigger: 'input' }],
+        mau: [{ required: true, message: 'Vui lòng nhập màu sơn!', trigger: 'input' }],
         short_name: [{ required: true, message: 'Vui lòng nhập số khung số máy!', trigger: 'input' }],
         nha_cung_cap: [{ required: true, message: 'Vui lòng chọn nhà cung cấp!', trigger: 'change' }],
         ngay_nhap: [{ required: true, message: 'Vui lòng chọn ngày nhập!', trigger: 'change' }],

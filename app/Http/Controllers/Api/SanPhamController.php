@@ -115,6 +115,7 @@ class SanPhamController extends BaseController
                     $model->gia_nhap = $searchParams['gia_nhap'];
                     $model->so_luong_con_lai = $searchParams['so_luong_con_lai'];
                     $model->so_luong_nhap = $searchParams['so_luong_nhap'];
+                    $model->mau = $searchParams['mau'];
                     $model->phuong_thuc_nhap = $searchParams['phuong_thuc_nhap'];
                     $model->ngay_nhap = $searchParams['ngay_nhap'];
                     $model->bien_so = $searchParams['bien_so'];
@@ -145,6 +146,7 @@ class SanPhamController extends BaseController
                 $model->gia_nhap = $searchParams['gia_nhap'];
                 $model->so_luong_con_lai = $searchParams['so_luong_nhap'];
                 $model->so_luong_nhap = $searchParams['so_luong_nhap'];
+                $model->mau = $searchParams['mau'];
                 $model->phuong_thuc_nhap = $searchParams['phuong_thuc_nhap'];
                 $model->ngay_nhap = $searchParams['ngay_nhap'];
                 $model->bien_so = $searchParams['bien_so'];

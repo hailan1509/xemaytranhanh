@@ -28,6 +28,7 @@ class SanPham extends Model
         'img',
         'bien_so',
         'ten_chu_cu',
+        'mau',
     ];
     protected $appends = ['img_path'];
 
