@@ -142,7 +142,7 @@ class HoaDonController extends BaseController
             }
             catch (\Exception $e){
                 DB::rollback();
-                return response()->json(['message' => "Đã có lỗi xảy ra! Hãy thao tác lại","success" => false]);
+                return response()->json(['message' => "Đã có lỗi xảy ra! Hãy thao tác lại","success" => false, 'msg' => $e->getMessage()]);
             }
         });
         if($pass)
